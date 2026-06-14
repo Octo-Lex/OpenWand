@@ -1013,7 +1013,7 @@ fn render_evidence_export(
         div { style: "{section_style}",
             div { style: "{label_style}", "Evidence Export" }
 
-            if let Some(ref exec_id) = workflow_execution_id {
+            if let Some(exec_id) = workflow_execution_id.clone() {
                 if can_export {
                     button {
                         style: "{btn_style}",
