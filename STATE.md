@@ -56,7 +56,8 @@ Note: `openwand-content` is a stub crate (add() only). Will be implemented when 
 | 113A | Post-v0.8 Roadmap Reset | `wave-113a-lock` | v0.9.0 roadmap (VI-1 through VI-5) |
 | 114A | Guided Evidence Flow | `wave-114a-lock` | `openwand review` guided CLI command |
 | 115A | Release Automation | `wave-115a-lock` | `openwand release-check` executable readiness checks |
-| 116A | v0.9.0 Release Preparation | (this wave) | Release artifact, notes, VI reconciliation |
+| 116A | v0.9.0 Release Preparation | `wave-116a-lock` | Release artifact, notes, VI reconciliation |
+| 116B | v0.9.0 Declaration | `v0.9.0` | Tag v0.9.0, publish release |
 
 ## v0.9.0 Blocker Plan
 
