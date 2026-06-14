@@ -1,10 +1,10 @@
 # OpenWand — Project State
 
 ## Version
-1.0.0-rc.1 (release candidate)
+1.0.0-rc.1 (release candidate) — planning v1.0.0 final
 
 ## Status
-**v1.0.0-rc.1 release candidate. Wave 120A (rc.1 preparation) locked.**
+**v1.0.0-rc.1 released. v1.0.0 final in progress. Wave 121A (post-rc.1 roadmap reset) locked.**
 
 Release: v1.0.0-rc.1 — tag `v1.0.0-rc.1`
 
@@ -51,6 +51,22 @@ Baseline for rc.1: 4,232 total
 50 app crate pedantic/test-only warnings accepted as cosmetic.
 
 **Desktop feature build:** PASS (0 errors, 0 warnings).
+
+## v1.0.0 Final Release Arc
+
+| Wave | Title | Tag | Deliverable |
+|------|-------|-----|-------------|
+| 121A | Post-rc.1 Roadmap Reset | `wave-121a-lock` | v1.0.0 final roadmap (VK-1 through VK-5) |
+
+## v1.0.0 Final Blocker Plan
+
+| Blocker | Description | Priority |
+|---------|-------------|----------|
+| VK-1: External review execution | Classify as executed or consciously deferred for v1.0 final | P0 (gate) |
+| VK-2: rc.1 soak / regression window | Run release-check, clean install, CLI sanity; classify bugs | P0 (gate) |
+| VK-3: Final v1.0 claim audit | Re-run 118A audit after rc.1 feedback | P1 |
+| VK-4: Final v1.0 release preparation | Artifact, notes, caveats | P1 |
+| VK-5: v1.0.0 final declaration | Tag v1.0.0 with explicit caveats | P1 |
 
 ## v1.0.0 Release-Candidate Closure Arc
 
