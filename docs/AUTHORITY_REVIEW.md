@@ -1,7 +1,7 @@
 # Structured Authority Review — Wave 105B
 
 **Review date:** 2026-06-14
-**Scope:** OpenWand v0.9.0 (surfaces unchanged since v0.7.0 review)
+**Scope:** OpenWand v1.0.0-rc.1 (surfaces unchanged since v0.7.0 review; re-audit Wave 124A confirms no drift)
 **Reviewer:** Automated structured review of source code, tests, and guards
 
 ---

@@ -4,7 +4,7 @@
 1.0.0-rc.1 (release candidate) — planning v1.0.0 final
 
 ## Status
-**v1.0.0-rc.1 released. v1.0.0 final in progress. Wave 123A (external review classification) locked.**
+**v1.0.0-rc.1 released. v1.0.0 final in progress. Wave 124A (final claim re-audit) locked.**
 
 Release: v1.0.0-rc.1 — tag `v1.0.0-rc.1`
 
@@ -48,7 +48,7 @@ Note: `openwand-content` is a stub crate (add() only). Will be implemented when 
 Baseline for rc.1: 4,232 total
 
 **Clippy posture:** 0 actionable production warnings on 11 non-app crates (HB-G5).
-50 app crate pedantic/test-only warnings accepted as cosmetic.
+50–82 app crate pedantic/test-only warnings accepted as cosmetic (count varies by measurement scope; see DEFERRED-001).
 
 **Desktop feature build:** PASS (0 errors, 0 warnings).
 
@@ -58,7 +58,8 @@ Baseline for rc.1: 4,232 total
 |------|-------|-----|-------------|
 | 121A | Post-rc.1 Roadmap Reset | `wave-121a-lock` | v1.0.0 final roadmap (VK-1 through VK-5) |
 | 122A | rc.1 Soak / Regression Window | `wave-122a-lock` | docs/RC1_SOAK_REPORT.md |
-| 123A | External Review Classification | (this wave) | docs/VK1_EXTERNAL_REVIEW_CLASSIFICATION.md |
+| 123A | External Review Classification | `wave-123a-lock` | docs/VK1_EXTERNAL_REVIEW_CLASSIFICATION.md |
+| 124A | Final Claim Re-audit | (this wave) | docs/VK3_FINAL_CLAIM_REAUDIT.md |
 
 ## v1.0.0 Final Blocker Plan
 
@@ -66,7 +67,7 @@ Baseline for rc.1: 4,232 total
 |---------|-------------|----------|
 | VK-1: External review execution | ✅ Classified — consciously deferred (123A) | P0 (gate) ✅ |
 | VK-2: rc.1 soak / regression window | Run release-check, clean install, CLI sanity; classify bugs | P0 (gate) |
-| VK-3: Final v1.0 claim audit | Re-run 118A audit after rc.1 feedback | P1 |
+| VK-3: Final v1.0 claim audit | ✅ Resolved — zero overclaiming, 21 claims, 15 caveats (124A) | P1 ✅ |
 | VK-4: Final v1.0 release preparation | Artifact, notes, caveats | P1 |
 | VK-5: v1.0.0 final declaration | Tag v1.0.0 with explicit caveats | P1 |
 

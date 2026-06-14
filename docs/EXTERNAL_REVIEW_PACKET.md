@@ -1,6 +1,7 @@
 # OpenWand External Review Packet
 
-**Version:** v0.9.0 (candidate)
+**Version:** v1.0.0-rc.1
+**Updated:** Wave 124A (final claim re-audit)
 **Date:** 2026-06-14
 **Status:** Reviewer-ready
 
@@ -35,7 +36,7 @@ cargo build --release --bin openwand-ui --features desktop
 
 ```bash
 ./target/release/openwand --version
-# Expected: openwand 0.8.0
+# Expected: openwand 1.0.0-rc.1
 ```
 
 ### Generate Test Session (if needed)
@@ -401,7 +402,7 @@ Aggregates all verification results into a single JSON report:
 
 ## 9. Caveats and Non-Claims
 
-### OpenWand v0.9.0 does NOT claim:
+### OpenWand v1.0.0-rc.1 does NOT claim:
 
 1. **Production readiness** — this is a development release
 2. **Formal security certification** — no external audit has been performed
@@ -414,7 +415,7 @@ Aggregates all verification results into a single JSON report:
 9. **Full Linux GUI support** — visual rendering not validated
 10. **Interactive UI validation on Linux** — not tested
 
-### OpenWand v0.9.0 DOES claim:
+### OpenWand v1.0.0-rc.1 DOES claim:
 
 1. **Trace chain + hash verification** — internally consistent under BLAKE3 recomputation
 2. **Operation-to-trace correspondence** — desktop operations have matching trace entries
@@ -484,4 +485,5 @@ v0.6  evidence-backed assurance hardening   Harden
 v0.7  external assurance                    Externally Anchor
 v0.8  operational hardening                 Operationally Harden
 v0.9  external validation                   Externally Validate
+v1.0  release-candidate closure             Close
 ```

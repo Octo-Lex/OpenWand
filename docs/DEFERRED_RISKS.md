@@ -48,10 +48,10 @@ None. Zero OpenWand direct dependencies have vulnerability or unmaintained advis
 
 ## Deferred Risk Status
 
-### DEFERRED-001: openwand-app clippy -D warnings (57 style warnings)
+### DEFERRED-001: openwand-app clippy -D warnings (57–82 depending on scope)
 - **Status:** Accepted non-blocking
 - **Category:** Cosmetic
-- **Scope:** `cargo clippy -p openwand-app --all-features -- -D warnings` produces 57 warnings
+- **Scope:** `cargo clippy -p openwand-app --all-features -- -D warnings` produces 57–82 warnings depending on measurement scope (with/without `--all-targets`, desktop features). Re-audit 124A: count is cosmetic drift, not a regression.
 - **Detail:** All 57 are in `#[cfg(test)]` test helper functions and test-only structs. Zero affect production code quality.
 - **Resolution path:** Add crate-level `#![allow(...)]` or refactor test helpers into a separate test-support crate.
 

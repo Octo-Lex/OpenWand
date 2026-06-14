@@ -15,6 +15,11 @@ EXTERNAL_REVIEW_PACKET, and RELEASE_CHECKLIST for consistency.
 
 **The audit classifies claims. It does not upgrade caveats into assurances.**
 
+> **Re-audit:** Wave 124A performed a full re-audit after rc.1 soak (122A) and
+> external review classification (123A). See `docs/VK3_FINAL_CLAIM_REAUDIT.md`.
+> The re-audit added claims C-19 through C-21, updated caveat X-09, added
+> caveat X-15, fixed 7 stale references, and confirmed zero overclaiming.
+
 ---
 
 ## 1. Claim Ledger
@@ -41,6 +46,9 @@ EXTERNAL_REVIEW_PACKET, and RELEASE_CHECKLIST for consistency.
 | C-16 | Zero CVEs in direct dependencies | cargo audit (721 deps, 0 vulns) | v0.2.0+ | ✅ Valid (as of 105A scan) |
 | C-17 | Zero `unsafe` in production code (one accepted: libc::dup for Unix openat) | Source inspection | v0.2.0+ | ✅ Valid |
 | C-18 | Desktop UI authority boundary enforced (no backend imports) | 32+ guard tests | v0.4.0+ | ✅ Valid |
+| C-19 | rc.1 soak/regression window executed, zero blocking regressions | RC1_SOAK_REPORT.md (122A) | v1.0.0-rc.1 | ✅ Valid |
+| C-20 | External review classification is conscious and documented | VK1_EXTERNAL_REVIEW_CLASSIFICATION.md (123A) | v1.0.0-rc.1 | ✅ Valid |
+| C-21 | CLI version string correctly reports 1.0.0-rc.1 | F-SOAK-1 fixed in 122A | v1.0.0-rc.1 | ✅ Valid |
 
 ### 1.2 Claims OpenWand MUST NOT Make (Caveats)
 
