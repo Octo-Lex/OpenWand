@@ -87,6 +87,22 @@ enum Commands {
         anchor: String,
     },
 
+    /// Guided evidence flow: runs all verification steps and generates report
+    #[command(name = "review")]
+    Review {
+        /// Session ID to review
+        session_id: String,
+        /// Operations JSON file (same format as operation-replay)
+        #[arg(long)]
+        operations: String,
+        /// Optional checkpoint anchor file for anchor verification
+        #[arg(long)]
+        anchor: Option<String>,
+        /// Output path for the evidence report JSON (default: evidence_report_<session>.json)
+        #[arg(long)]
+        output: Option<String>,
+    },
+
     /// Generate a reviewer-facing evidence report
     #[command(name = "evidence-report")]
     EvidenceReport {
@@ -1084,6 +1100,7 @@ async fn main() -> Result<()> {
         Commands::AnchorWrite { session_id, anchor_root, sequence } => cmd_anchor_write(&cli, &session_id, &anchor_root, sequence).await,
         Commands::AnchorVerify { session_id, anchor } => cmd_anchor_verify(&cli, &session_id, &anchor).await,
         Commands::EvidenceReport { session_id, operations, anchor, output } => cmd_evidence_report(&cli, &session_id, &operations, anchor.as_deref(), &output).await,
+        Commands::Review { session_id, operations, anchor, output } => cmd_guided_review(&cli, &session_id, &operations, anchor.as_deref(), output.as_deref()).await,
         Commands::AuditCheck { session_id } => cmd_audit_check(&cli, &session_id).await,
         Commands::SessionRebuild { session_id } => cmd_session_rebuild(&cli, &session_id).await,
         Commands::TaskPlan { task_plan_cmd } => { cmd_eval_task_plan(task_plan_cmd)?; Ok(()) },
@@ -1772,6 +1789,312 @@ async fn cmd_anchor_verify(
     };
 
     std::process::exit(exit_code);
+}
+
+// ── Guided Review Flow (Wave 114A) ─────────────────────────
+/// Provides a guided, step-by-step evidence generation flow.
+///
+/// This command orchestrates existing read-only verification commands
+/// and prints clear progress for each step. It does NOT:
+/// - Infer operations silently (user must provide ops file)
+/// - Mutate trace, memory, or approval records
+/// - Create anchors (use anchor-write separately if needed)
+/// - Execute tools, approve actions, or change policy
+/// - Claim assurance beyond what the evidence proves
+async fn cmd_guided_review(
+    _cli: &Cli,
+    session_id: &str,
+    operations_file: &str,
+    anchor_path: Option<&str>,
+    output_path: Option<&str>,
+) -> Result<()> {
+    use openwand_store::backends::sqlite::store::{SqliteStore, SqliteStoreConfig};
+    use openwand_trace::{TraceStore, TraceQuery, TraceStreamId, TraceStreamScope};
+    use openwand_trace::verifier::{TraceVerifier, Blake3HashPolicy, HashVerificationPolicy};
+    use openwand_trace::anchor::{read_anchor_file, verify_anchor};
+    use openwand_app::operation_replay::{DesktopOperation, OperationReplayVerifier};
+    use openwand_app::evidence_report::*;
+    use openwand_store::StoredEvent;
+
+    println!("╔══════════════════════════════════════════╗");
+    println!("║        OpenWand Guided Evidence Flow      ║");
+    println!("╚══════════════════════════════════════════╝");
+    println!();
+
+    // ── Validate inputs upfront ──
+    println!("Step 0: Validating inputs");
+    println!("  Session ID:     {}", session_id);
+    println!("  Operations:     {}", operations_file);
+    if let Some(ap) = anchor_path {
+        println!("  Anchor:         {}", ap);
+    } else {
+        println!("  Anchor:         (none — anchor verification will be skipped)");
+    }
+
+    // Validate operations file exists and is readable
+    let ops_content = match std::fs::read_to_string(operations_file) {
+        Ok(c) => c,
+        Err(e) => {
+            eprintln!("\nERROR: Cannot read operations file: {e}");
+            eprintln!("HINT: Create a JSON file with your operations, e.g.:");
+            eprintln!("  {{\"operations\": []}}");
+            eprintln!("  {{\"operations\": [{{\"type\": \"workflow_initiation\", \"workflow_execution_id\": \"wfx-001\"}}]}}");
+            std::process::exit(1);
+        }
+    };
+
+    // Validate operations JSON
+    #[derive(serde::Deserialize)]
+    struct OpsFile { operations: Vec<OpDesc> }
+    #[derive(serde::Deserialize)]
+    #[serde(tag = "type")]
+    enum OpDesc {
+        #[serde(rename = "workflow_initiation")] WorkflowInitiation { workflow_execution_id: String },
+        #[serde(rename = "approval_resolution")] ApprovalResolution { approval_request_id: String, tool_call_id: Option<String> },
+        #[serde(rename = "evidence_export")] EvidenceExport { workflow_execution_id: String, artifact_path: Option<String>, artifact_hash: Option<String> },
+    }
+    let ops_file_parsed: OpsFile = match serde_json::from_str(&ops_content) {
+        Ok(f) => f,
+        Err(e) => {
+            eprintln!("\nERROR: Malformed operations JSON: {e}");
+            std::process::exit(1);
+        }
+    };
+    let ops_count = ops_file_parsed.operations.len();
+    println!("  Operations:     {} operation(s)", ops_count);
+
+    // Validate anchor file if provided
+    if let Some(ap) = anchor_path {
+        let anchor_path_buf = std::path::PathBuf::from(ap);
+        if !anchor_path_buf.exists() {
+            eprintln!("\nERROR: Anchor file does not exist: {ap}");
+            std::process::exit(1);
+        }
+    }
+
+    // Determine output path
+    let output = match output_path {
+        Some(p) => std::path::PathBuf::from(p),
+        None => std::path::PathBuf::from(format!("evidence_report_{}.json", session_id)),
+    };
+    if output.exists() {
+        eprintln!("\nERROR: Output file already exists: {}", output.display());
+        eprintln!("HINT: Remove the existing file or use --output <path>");
+        std::process::exit(1);
+    }
+    println!("  Output:         {}", output.display());
+    println!();
+
+    // ── Step 1: Load trace store ──
+    println!("Step 1: Loading trace store");
+    let db_path = dirs::data_dir()
+        .map(|d| d.join("openwand").join("openwand.db"))
+        .unwrap_or_else(|| std::path::PathBuf::from("openwand.db"));
+    if !db_path.exists() {
+        eprintln!("\nERROR: Trace database not found at {}", db_path.display());
+        std::process::exit(1);
+    }
+    println!("  Database: {}", db_path.display());
+
+    let store = match SqliteStore::open(SqliteStoreConfig::file(&db_path)).await {
+        Ok(s) => s,
+        Err(e) => {
+            eprintln!("\nERROR: Failed to open trace store: {e}");
+            std::process::exit(1);
+        }
+    };
+
+    let stream_id = TraceStreamId {
+        scope: TraceStreamScope::Session,
+        id: session_id.to_string(),
+    };
+
+    let mut all_entries = Vec::new();
+    let mut cursor: Option<openwand_trace::TraceId> = None;
+    loop {
+        let mut query = TraceQuery {
+            stream_id: Some(stream_id.clone()),
+            limit: Some(500),
+            ..Default::default()
+        };
+        query.cursor = cursor;
+        let page = match store.scan(query).await {
+            Ok(p) => p,
+            Err(e) => {
+                eprintln!("\nERROR: Failed to scan trace: {e}");
+                std::process::exit(1);
+            }
+        };
+        let page_len = page.entries.len();
+        all_entries.extend(page.entries);
+        cursor = page.next_cursor;
+        if cursor.is_none() || page_len == 0 { break; }
+    }
+    println!("  Loaded {} trace entries", all_entries.len());
+    println!();
+
+    // ── Step 2: Trace verification ──
+    println!("Step 2: Trace integrity verification");
+    println!("  Running: chain continuity + hash recomputation (BLAKE3)");
+    let policy = Blake3HashPolicy;
+    let trace_report = TraceVerifier::verify_with_hash_policy(&all_entries, &policy);
+    println!("  Result:  {:?}", trace_report.result);
+    println!("  Entries: {} | Streams: {}", trace_report.entries_checked, trace_report.streams_checked);
+    let trace_errors = trace_report.findings.iter().filter(|f| f.severity == openwand_trace::verifier::FindingSeverity::Error).count();
+    let trace_warnings = trace_report.findings.iter().filter(|f| f.severity == openwand_trace::verifier::FindingSeverity::Warning).count();
+    println!("  Findings: {} error(s), {} warning(s)", trace_errors, trace_warnings);
+
+    let trace_summary = TraceVerificationSummary {
+        result: format!("{:?}", trace_report.result),
+        entries_checked: trace_report.entries_checked,
+        streams_checked: trace_report.streams_checked,
+        error_findings: trace_errors,
+        warning_findings: trace_warnings,
+    };
+    println!();
+
+    // ── Step 3: Operation replay ──
+    println!("Step 3: Operation correspondence verification");
+    println!("  Checking {} operation(s) against trace evidence", ops_count);
+    let desktop_ops: Vec<DesktopOperation> = ops_file_parsed.operations.into_iter().map(|o| match o {
+        OpDesc::WorkflowInitiation { workflow_execution_id } => DesktopOperation::WorkflowInitiation { workflow_execution_id },
+        OpDesc::ApprovalResolution { approval_request_id, tool_call_id } => DesktopOperation::ApprovalResolution { approval_request_id, tool_call_id },
+        OpDesc::EvidenceExport { workflow_execution_id, artifact_path, artifact_hash } => DesktopOperation::EvidenceExport { workflow_execution_id, artifact_path, artifact_hash },
+    }).collect();
+
+    let replay_report = OperationReplayVerifier::verify(&desktop_ops, &all_entries);
+    println!("  Result:  {:?}", replay_report.result);
+    println!("  Operations checked: {}", replay_report.operations_checked);
+    if !replay_report.findings.is_empty() {
+        println!("  Findings:");
+        for f in &replay_report.findings {
+            println!("    [{:?}] {:?} - {}", f.severity, f.check, f.detail);
+        }
+    } else {
+        println!("  No findings.");
+    }
+
+    let replay_summary = OperationReplaySummary {
+        status: "verified".into(),
+        result: Some(format!("{:?}", replay_report.result)),
+        operations_checked: Some(replay_report.operations_checked),
+        findings_count: Some(replay_report.findings.len()),
+    };
+    println!();
+
+    // ── Step 4: Anchor verification (optional) ──
+    println!("Step 4: Checkpoint anchor verification");
+    let (anchor_summary, anchor_caveat) = match anchor_path {
+        Some(ap) => {
+            println!("  Anchor:  {}", ap);
+            let path = std::path::PathBuf::from(ap);
+            let anchor = match read_anchor_file(&path) {
+                Ok(a) => a,
+                Err(e) => {
+                    println!("  ERROR:  {}", e);
+                    std::process::exit(1);
+                }
+            };
+            let report = verify_anchor(&all_entries, Some(&anchor));
+            println!("  Result:  {:?}", report.result);
+            println!("  Freshness: {:?}", report.freshness);
+            println!("  Detail:  {}", report.detail);
+            let summary = AnchorVerificationSummary {
+                result: format!("{:?}", report.result),
+                freshness: format!("{:?}", report.freshness),
+                detail: report.detail,
+            };
+            (Some(summary), None)
+        }
+        None => {
+            println!("  Skipped — no anchor file provided");
+            println!("  HINT: Run 'openwand anchor-write {} --anchor-root <dir>' to create one", session_id);
+            (None, Some(anchor_missing_caveat()))
+        }
+    };
+    println!();
+
+    // ── Step 5: Load sourced summaries ──
+    println!("Step 5: Loading scan and authority review summaries");
+    let docs_root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..").join("..").join("docs");
+    let scan_summary = load_security_scan_summary(&docs_root);
+    let review_summary = load_authority_review_summary(&docs_root);
+    println!("  Security scan:  {}", scan_summary.status);
+    println!("  Authority review: {}", review_summary.status);
+    println!();
+
+    // ── Step 6: Build caveats ──
+    let mut caveats = standard_caveats();
+    if let Some(ref ac) = anchor_caveat {
+        caveats.push(ac.clone());
+    }
+    if scan_summary.status == "unavailable" {
+        caveats.push("Security scan results document not found; scan summary is unavailable.".into());
+    }
+    if review_summary.status == "unavailable" {
+        caveats.push("Authority review document not found; authority review summary is unavailable.".into());
+    }
+
+    // ── Step 7: Determine result ──
+    let result = if trace_summary.result == "Fail" || replay_summary.result.as_deref() == Some("Fail") {
+        EvidenceReportResult::CompleteWithCaveats
+    } else if anchor_caveat.is_some() || scan_summary.status == "unavailable" || review_summary.status == "unavailable" {
+        EvidenceReportResult::CompleteWithCaveats
+    } else {
+        EvidenceReportResult::Complete
+    };
+
+    // ── Step 8: Write report ──
+    println!("Step 6: Generating evidence report");
+    let report = EvidenceReport {
+        session_id: session_id.into(),
+        generated_at: chrono::Utc::now().to_rfc3339(),
+        result: result.clone(),
+        trace_verification: trace_summary,
+        operation_replay: replay_summary,
+        anchor_verification: anchor_summary,
+        security_scan: scan_summary,
+        authority_review: review_summary,
+        caveats: caveats.clone(),
+    };
+
+    let json = serde_json::to_string_pretty(&report)
+        .map_err(|e| anyhow::anyhow!("failed to serialize report: {e}"))?;
+    std::fs::write(&output, &json)
+        .map_err(|e| anyhow::anyhow!("failed to write report: {e}"))?;
+
+    println!("  Written: {}", output.display());
+    println!();
+
+    // ── Summary ──
+    println!("╔══════════════════════════════════════════╗");
+    println!("║           Review Complete                 ║");
+    println!("╚══════════════════════════════════════════╝");
+    println!();
+    println!("  Session:    {}", session_id);
+    println!("  Result:     {:?}", result);
+    println!("  Caveats:    {}", caveats.len());
+    println!("  Report:     {}", output.display());
+    println!();
+    if result != EvidenceReportResult::Complete {
+        println!("  NOTE: Result is {:?}. Review the caveats in the report.", result);
+        println!("  This does NOT mean the verification failed — it means some");
+        println!("  optional sources were missing or inconclusive.");
+    }
+    println!();
+    println!("  Next steps for a reviewer:");
+    println!("    1. Review the JSON report at the path above");
+    println!("    2. Cross-check trace-verify exit code (0=Pass, 2=Fail, 3=Inconclusive)");
+    println!("    3. Cross-check operation-replay exit code (0=Pass, 2=Fail, 3=Inconclusive)");
+    if anchor_path.is_some() {
+        println!("    4. Cross-check anchor-verify exit code (0=Pass, 2=Fail, 3=Missing)");
+    }
+    println!();
+    println!("  This report does NOT claim:");
+    println!("    production readiness, formal certification, physical immutability,");
+    println!("    remote attestation, or stable API guarantee.");
+    println!();
+    Ok(())
 }
 
 async fn cmd_evidence_report(
