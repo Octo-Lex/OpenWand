@@ -398,5 +398,5 @@ Some waves collapse commits (e.g., commits 2+3 combined) when scope is smaller.
 | 117A | Post-v0.9 Roadmap Reset | `wave-117a-lock` | 4,216 | docs/V100_ROADMAP.md |
 | 118A | Final Assurance Audit | `wave-118a-lock` | 4,224 | docs/FINAL_ASSURANCE_AUDIT.md |
 | 119A | Release-Scope Decisions | `wave-119a-lock` | 4,232 | docs/V100_RELEASE_DECISIONS.md |
-| 120A | v1.0.0-rc.1 Preparation | (pending) | 4,232 | RELEASE_NOTES_v100_RC1.md |
+| 120A | v1.0.0-rc.1 Preparation | `wave-120a-lock` | 4,232 | RELEASE_NOTES_v100_RC1.md |
 | **v1.0.0-rc.1** | **Release Candidate** | **`v1.0.0-rc.1`** | **4,232** | **RELEASE_NOTES_v100_RC1.md** |

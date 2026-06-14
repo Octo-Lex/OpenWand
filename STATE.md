@@ -6,7 +6,7 @@
 ## Status
 **v1.0.0-rc.1 release candidate. Wave 120A (rc.1 preparation) locked.**
 
-Release: v1.0.0-rc.1 — tag `v1.0.0-rc.1` (pending declaration)
+Release: v1.0.0-rc.1 — tag `v1.0.0-rc.1`
 
 Binary: 17,702,912 bytes (~16.9 MB), SHA-256 `3F678ACD185D8C1A2FD168202C8B76A3140B20A2E1EB684081A591E0A9A4ECF9`
 
@@ -59,7 +59,8 @@ Baseline for rc.1: 4,232 total
 | 117A | Post-v0.9 Roadmap Reset | `wave-117a-lock` | v1.0.0 roadmap (VJ-1 through VJ-5) |
 | 118A | Final Assurance Audit | `wave-118a-lock` | docs/FINAL_ASSURANCE_AUDIT.md |
 | 119A | Release-Scope Decisions | `wave-119a-lock` | docs/V100_RELEASE_DECISIONS.md |
-| 120A | v1.0.0-rc.1 Preparation | (this wave) | RELEASE_NOTES_v100_RC1.md |
+| 120A | v1.0.0-rc.1 Preparation | `wave-120a-lock` | RELEASE_NOTES_v100_RC1.md |
+| 120B | v1.0.0-rc.1 Declaration | `v1.0.0-rc.1` | Tag v1.0.0-rc.1 |
 
 ## v1.0.0 Blocker Plan
 
