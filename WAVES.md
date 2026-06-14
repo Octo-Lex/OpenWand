@@ -386,3 +386,4 @@ Some waves collapse commits (e.g., commits 2+3 combined) when scope is smaller.
 | **v0.7.0** | **Stable Release** | **`v0.7.0`** | **4,176** | **RELEASE_NOTES_v070_STABLE.md** |
 | 108A | Post-v0.7 Roadmap Reset | `wave-108a-lock` | 4,176 | docs/V080_ROADMAP.md |
 | 109A | Linux GUI Smoke Test | `wave-109a-lock` | 4,181 | docs/LINUX_GUI_SMOKE_TEST.md, 9 ui_main.rs bugfixes |
+| 110A | External Review Packet | (pending) | 4,190 | docs/EXTERNAL_REVIEW_PACKET.md |
