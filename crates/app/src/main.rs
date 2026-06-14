@@ -132,6 +132,20 @@ enum Commands {
         session_id: String,
     },
 
+    /// Run release readiness checks (tests, clippy, audit, build gates, artifact identity)
+    #[command(name = "release-check")]
+    ReleaseCheck {
+        /// Output JSON report to file
+        #[arg(long)]
+        output: Option<String>,
+        /// Skip tests (use if already run)
+        #[arg(long)]
+        skip_tests: bool,
+        /// Skip cargo audit (use if offline or already run)
+        #[arg(long)]
+        skip_audit: bool,
+    },
+
     /// Task plan commands (no model required)
     #[command(name = "task-plan")]
     TaskPlan {
@@ -1089,6 +1103,26 @@ enum TaskPlanReviewCommands {
 async fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
 
+    // Wrap CLI parsing in a large-stack thread to prevent stack overflow
+    // in debug builds where clap derive nesting is deep.
+    let result = tokio::task::spawn_blocking(|| {
+        let rt = tokio::runtime::Handle::current();
+        rt.block_on(async {
+            inner_main().await
+        })
+    }).await;
+
+    match result {
+        Ok(inner) => inner,
+        Err(e) => {
+            eprintln!("fatal: {e}");
+            std::process::exit(1);
+        }
+    }
+}
+
+async fn inner_main() -> Result<()> {
+
     let mut cli = Cli::parse();
 
     let command = cli.command.take().unwrap_or(Commands::Run { message: None });
@@ -1127,6 +1161,7 @@ async fn main() -> Result<()> {
         Commands::WorkflowVerificationReadinessCmd { verification_readiness_cmd, store_dir } => { cmd_verification_readiness(verification_readiness_cmd, store_dir)?; Ok(()) },
         Commands::AuditPacketReviewCmd { audit_review_cmd, store_dir } => { cmd_audit_packet_review(audit_review_cmd, store_dir)?; Ok(()) },
         Commands::AuditPacketDistributionCmd { audit_distribution_cmd, store_dir } => { cmd_audit_packet_distribution(audit_distribution_cmd, store_dir)?; Ok(()) },
+        Commands::ReleaseCheck { output, skip_tests, skip_audit } => cmd_release_check(output.as_deref(), skip_tests, skip_audit).await,
 
         #[cfg(feature = "real-model-eval")]
         Commands::Eval { eval_cmd } => cmd_eval(eval_cmd).await,
@@ -2314,6 +2349,423 @@ async fn cmd_session_rebuild(_cli: &Cli, _session_id: &str) -> Result<()> {
     eprintln!("error: the 'session-rebuild' command is not yet implemented.");
     eprintln!("       Session projection rebuild is planned for a future release.");
     std::process::exit(1);
+}
+
+// ── Release Check (Wave 115A) ─────────────────────────────
+/// Runs release readiness checks and produces a structured report.
+///
+/// This command RECORDS readiness evidence. It does NOT:
+/// - Publish, tag, push, or declare a release
+/// - Mutate trace, memory, or approval records
+/// - Execute governed tools or change policy
+/// - Claim production readiness or formal certification
+///
+/// Manual-required checks are listed as ManualRequired.
+#[derive(serde::Serialize, serde::Deserialize)]
+struct ReleaseCheckItem {
+    name: String,
+    status: String, // Pass, Fail, Blocked, Skipped, ManualRequired
+    detail: String,
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
+struct ReleaseCheckReport {
+    generated_at: String,
+    overall: String, // Ready, NotReady, Partial
+    checks: Vec<ReleaseCheckItem>,
+    manual_items: Vec<String>,
+    non_claims: Vec<String>,
+}
+
+async fn cmd_release_check(
+    output_path: Option<&str>,
+    skip_tests: bool,
+    skip_audit: bool,
+) -> Result<()> {
+    use std::process::Command as StdCommand;
+
+    println!("╔══════════════════════════════════════════╗");
+    println!("║       OpenWand Release Check              ║");
+    println!("╚══════════════════════════════════════════╝");
+    println!();
+    println!("  NOTE: This command records readiness evidence.");
+    println!("        It does NOT publish, tag, push, or declare a release.");
+    println!();
+
+    let mut checks = Vec::new();
+    let mut manual_items = Vec::new();
+    let project_root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..").join("..");
+
+    // ── Check 1: Workspace tests ──
+    print!("[1/8] Workspace tests... ");
+    if skip_tests {
+        println!("SKIPPED");
+        checks.push(ReleaseCheckItem {
+            name: "Workspace Tests".into(),
+            status: "Skipped".into(),
+            detail: "Skipped by --skip-tests flag".into(),
+        });
+    } else {
+        let result = StdCommand::new("cargo")
+            .args(["test", "--workspace", "--all-targets", "-q"])
+            .current_dir(&project_root)
+            .output();
+        match result {
+            Ok(out) if out.status.success() => {
+                let stdout = String::from_utf8_lossy(&out.stdout);
+                let test_count: usize = stdout
+                    .lines()
+                    .filter_map(|l| {
+                        if l.contains("test result:") && l.contains("passed") {
+                            l.split("passed").next()?.split_whitespace().last()?.parse::<usize>().ok()
+                        } else { None }
+                    })
+                    .sum();
+                println!("PASS ({} tests)", test_count);
+                checks.push(ReleaseCheckItem {
+                    name: "Workspace Tests".into(),
+                    status: "Pass".into(),
+                    detail: format!("{} tests passed", test_count),
+                });
+            }
+            Ok(out) => {
+                println!("FAIL");
+                checks.push(ReleaseCheckItem {
+                    name: "Workspace Tests".into(),
+                    status: "Fail".into(),
+                    detail: "One or more tests failed".into(),
+                });
+            }
+            Err(e) => {
+                println!("BLOCKED ({})", e);
+                checks.push(ReleaseCheckItem {
+                    name: "Workspace Tests".into(),
+                    status: "Blocked".into(),
+                    detail: format!("Cannot run cargo: {}", e),
+                });
+            }
+        }
+    }
+
+    // ── Check 2: Production clippy ──
+    print!("[2/8] Production clippy... ");
+    let clippy_crates = [
+        "openwand-core", "openwand-session", "openwand-llm",
+        "openwand-policy", "openwand-tools", "openwand-store",
+        "openwand-trace", "openwand-memory", "openwand-skills",
+        "openwand-goals", "openwand-workflow",
+    ];
+    let clippy_result = StdCommand::new("cargo")
+        .args(["clippy", "--release"])
+        .args(&clippy_crates.iter().map(|c| { let mut s = std::ffi::OsString::from("-p"); s.push(c); s }).collect::<Vec<_>>())
+        .arg("--")
+        .arg("-D")
+        .arg("warnings")
+        .current_dir(&project_root)
+        .output();
+    match clippy_result {
+        Ok(out) if out.status.success() => {
+            println!("PASS (0 warnings)");
+            checks.push(ReleaseCheckItem {
+                name: "Production Clippy".into(),
+                status: "Pass".into(),
+                detail: "0 warnings on 11 production crates".into(),
+            });
+        }
+        Ok(out) => {
+            println!("FAIL");
+            checks.push(ReleaseCheckItem {
+                name: "Production Clippy".into(),
+                status: "Fail".into(),
+                detail: "Clippy warnings detected".into(),
+            });
+        }
+        Err(e) => {
+            println!("BLOCKED ({})", e);
+            checks.push(ReleaseCheckItem {
+                name: "Production Clippy".into(),
+                status: "Blocked".into(),
+                detail: format!("Cannot run clippy: {}", e),
+            });
+        }
+    }
+
+    // ── Check 3: Cargo audit ──
+    print!("[3/8] Cargo audit... ");
+    if skip_audit {
+        println!("SKIPPED");
+        checks.push(ReleaseCheckItem {
+            name: "Cargo Audit".into(),
+            status: "Skipped".into(),
+            detail: "Skipped by --skip-audit flag".into(),
+        });
+    } else {
+        let audit_result = StdCommand::new("cargo")
+            .args(["audit"])
+            .current_dir(&project_root)
+            .output();
+        match audit_result {
+            Ok(out) if out.status.success() => {
+                println!("PASS (0 CVEs)");
+                checks.push(ReleaseCheckItem {
+                    name: "Cargo Audit".into(),
+                    status: "Pass".into(),
+                    detail: "0 CVEs found".into(),
+                });
+            }
+            Ok(_) => {
+                println!("FAIL");
+                checks.push(ReleaseCheckItem {
+                    name: "Cargo Audit".into(),
+                    status: "Fail".into(),
+                    detail: "Vulnerabilities found — BLOCK RELEASE".into(),
+                });
+            }
+            Err(_) => {
+                println!("BLOCKED (cargo-audit not installed)");
+                checks.push(ReleaseCheckItem {
+                    name: "Cargo Audit".into(),
+                    status: "Blocked".into(),
+                    detail: "cargo-audit not installed or not available".into(),
+                });
+            }
+        }
+    }
+
+    // ── Check 4: CLI binary build ──
+    print!("[4/8] CLI binary build (openwand)... ");
+    let cli_build = StdCommand::new("cargo")
+        .args(["build", "--release", "--bin", "openwand", "--features", "desktop"])
+        .current_dir(&project_root)
+        .output();
+    match cli_build {
+        Ok(out) if out.status.success() => {
+            println!("PASS");
+            checks.push(ReleaseCheckItem {
+                name: "CLI Binary Build".into(),
+                status: "Pass".into(),
+                detail: "openwand builds with desktop features".into(),
+            });
+        }
+        _ => {
+            println!("FAIL");
+            checks.push(ReleaseCheckItem {
+                name: "CLI Binary Build".into(),
+                status: "Fail".into(),
+                detail: "openwand failed to build".into(),
+            });
+        }
+    }
+
+    // ── Check 5: Desktop binary build (CRITICAL — 109A correction) ──
+    print!("[5/8] Desktop binary build (openwand-ui)... ");
+    let ui_build = StdCommand::new("cargo")
+        .args(["build", "--release", "--bin", "openwand-ui", "--features", "desktop"])
+        .current_dir(&project_root)
+        .output();
+    match ui_build {
+        Ok(out) if out.status.success() => {
+            println!("PASS");
+            checks.push(ReleaseCheckItem {
+                name: "Desktop Binary Build".into(),
+                status: "Pass".into(),
+                detail: "openwand-ui builds (109A gate)".into(),
+            });
+        }
+        _ => {
+            println!("FAIL");
+            checks.push(ReleaseCheckItem {
+                name: "Desktop Binary Build".into(),
+                status: "Fail".into(),
+                detail: "openwand-ui failed to build — CRITICAL".into(),
+            });
+        }
+    }
+
+    // ── Check 6: Artifact identity ──
+    print!("[6/8] Artifact identity... ");
+    #[cfg(target_os = "windows")]
+    let bin_path = project_root.join("target").join("release").join("openwand.exe");
+    #[cfg(not(target_os = "windows"))]
+    let bin_path = project_root.join("target").join("release").join("openwand");
+
+    if bin_path.exists() {
+        let data = std::fs::read(&bin_path)
+            .map_err(|e| anyhow::anyhow!("cannot read binary: {}", e))?;
+        let size = data.len();
+        let sha = blake3::hash(&data).to_hex().to_string().to_uppercase();
+        let under_20mb = size < 20 * 1024 * 1024;
+        if under_20mb {
+            println!("PASS ({:.1} MB)", size as f64 / 1024.0 / 1024.0);
+            checks.push(ReleaseCheckItem {
+                name: "Artifact Identity".into(),
+                status: "Pass".into(),
+                detail: format!("{} bytes, BLAKE3: {}", size, sha),
+            });
+        } else {
+            println!("FAIL (over 20MB)");
+            checks.push(ReleaseCheckItem {
+                name: "Artifact Identity".into(),
+                status: "Fail".into(),
+                detail: format!("{} bytes — exceeds 20MB limit", size),
+            });
+        }
+    } else {
+        println!("BLOCKED (binary not found)");
+        checks.push(ReleaseCheckItem {
+            name: "Artifact Identity".into(),
+            status: "Blocked".into(),
+            detail: format!("Binary not found at {}", bin_path.display()),
+        });
+    }
+
+    // ── Check 7: Release notes presence ──
+    print!("[7/8] Documentation presence... ");
+    let docs_to_check = [
+        ("docs/RELEASE_CHECKLIST.md", "Release Checklist"),
+        ("docs/EXTERNAL_REVIEW_PACKET.md", "External Review Packet"),
+        ("docs/SECURITY_SCAN_RESULTS.md", "Security Scan Results"),
+        ("docs/AUTHORITY_REVIEW.md", "Authority Review"),
+        ("docs/KNOWN_GAPS.md", "Known Gaps"),
+    ];
+    let mut docs_present = 0;
+    let mut docs_missing = Vec::new();
+    for (rel, name) in &docs_to_check {
+        let path = project_root.join(rel);
+        if path.exists() {
+            docs_present += 1;
+        } else {
+            docs_missing.push(name.to_string());
+        }
+    }
+    if docs_missing.is_empty() {
+        println!("PASS ({}/{} docs)", docs_present, docs_to_check.len());
+        checks.push(ReleaseCheckItem {
+            name: "Documentation Presence".into(),
+            status: "Pass".into(),
+            detail: format!("{} key documents present", docs_present),
+        });
+    } else {
+        println!("PARTIAL (missing: {})", docs_missing.join(", "));
+        checks.push(ReleaseCheckItem {
+            name: "Documentation Presence".into(),
+            status: "Blocked".into(),
+            detail: format!("Missing: {}", docs_missing.join(", ")),
+        });
+    }
+
+    // ── Check 8: STATE.md consistency ──
+    print!("[8/8] STATE.md consistency... ");
+    let state_path = project_root.join("STATE.md");
+    if state_path.exists() {
+        let state_content = std::fs::read_to_string(&state_path).unwrap_or_default();
+        let has_version = state_content.contains("## Version");
+        let has_tests = state_content.contains("tests") || state_content.contains("test");
+        let has_sha = state_content.contains("SHA-256");
+        if has_version && has_tests && has_sha {
+            println!("PASS");
+            checks.push(ReleaseCheckItem {
+                name: "STATE.md Consistency".into(),
+                status: "Pass".into(),
+                detail: "Version, tests, SHA-256 present".into(),
+            });
+        } else {
+            println!("PARTIAL");
+            checks.push(ReleaseCheckItem {
+                name: "STATE.md Consistency".into(),
+                status: "Blocked".into(),
+                detail: "Missing required fields".into(),
+            });
+        }
+    } else {
+        println!("BLOCKED");
+        checks.push(ReleaseCheckItem {
+            name: "STATE.md Consistency".into(),
+            status: "Blocked".into(),
+            detail: "STATE.md not found".into(),
+        });
+    }
+
+    // ── Manual-required items ──
+    manual_items.extend([
+        "GitHub release publication (manual)".into(),
+        "External reviewer execution (manual)".into(),
+        "Native Linux GUI full visual validation (manual)".into(),
+        "Caveat/non-claim human review (manual)".into(),
+    ]);
+
+    // ── Non-claims ──
+    let non_claims = vec![
+        "Not production-ready".into(),
+        "Not formal security certification".into(),
+        "Not physical immutability".into(),
+        "Not stable API guarantee".into(),
+    ];
+
+    // ── Overall assessment ──
+    let has_fail = checks.iter().any(|c| c.status == "Fail");
+    let has_blocked = checks.iter().any(|c| c.status == "Blocked");
+    let overall = if has_fail {
+        "NotReady"
+    } else if has_blocked {
+        "Partial"
+    } else {
+        "Ready"
+    };
+
+    println!();
+    println!("╔══════════════════════════════════════════╗");
+    println!("║         Release Check Summary             ║");
+    println!("╚══════════════════════════════════════════╝");
+    println!();
+    println!("  Overall: {}", overall);
+    println!();
+    println!("  Automated checks:");
+    for c in &checks {
+        let icon = match c.status.as_str() {
+            "Pass" => "✅",
+            "Fail" => "❌",
+            "Blocked" => "⚠️",
+            "Skipped" => "⏭️",
+            _ => "❓",
+        };
+        println!("    {} {} — {}", icon, c.name, c.detail);
+    }
+    println!();
+    println!("  Manual-required items:");
+    for m in &manual_items {
+        println!("    📋 {}", m);
+    }
+    println!();
+    println!("  This check does NOT claim:");
+    for n in &non_claims {
+        println!("    {}", n);
+    }
+    println!();
+
+    // ── Write JSON report if requested ──
+    let report = ReleaseCheckReport {
+        generated_at: chrono::Utc::now().to_rfc3339(),
+        overall: overall.into(),
+        checks,
+        manual_items,
+        non_claims,
+    };
+
+    if let Some(out) = output_path {
+        let json = serde_json::to_string_pretty(&report)
+            .map_err(|e| anyhow::anyhow!("failed to serialize: {}", e))?;
+        std::fs::write(out, &json)
+            .map_err(|e| anyhow::anyhow!("failed to write: {}", e))?;
+        println!("  Report written to: {}", out);
+    }
+
+    // Exit non-zero if not ready
+    if has_fail {
+        std::process::exit(1);
+    }
+
+    Ok(())
 }
 
 #[cfg(feature = "real-model-eval")]

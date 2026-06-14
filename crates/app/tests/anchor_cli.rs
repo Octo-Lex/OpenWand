@@ -25,12 +25,16 @@ mod anchor_cli_tests {
     #[test]
     fn anchor_cli_does_not_overclaim() {
         let src = include_str!("../src/main.rs");
-        // Find the anchor functions
-        let anchor_section = src.split("async fn cmd_anchor_write").nth(1).unwrap_or("");
-        let combined = format!("{}\n{}", 
-            src.split("async fn cmd_anchor_write").nth(1).unwrap_or(""),
-            src.split("async fn cmd_anchor_verify").nth(1).unwrap_or(""),
-        );
+        // Find the anchor functions, bounded by the next function after each
+        let anchor_write_start = src.find("async fn cmd_anchor_write").unwrap_or(0);
+        let anchor_write_end = src[anchor_write_start..].find("async fn cmd_anchor_verify")
+            .map(|e| anchor_write_start + e).unwrap_or(src.len());
+        let anchor_write_body = &src[anchor_write_start..anchor_write_end];
+        let anchor_verify_start = src.find("async fn cmd_anchor_verify").unwrap_or(0);
+        let anchor_verify_end = src[anchor_verify_start..].find("async fn cmd_evidence_report")
+            .map(|e| anchor_verify_start + e).unwrap_or(src.len());
+        let anchor_verify_body = &src[anchor_verify_start..anchor_verify_end];
+        let combined = format!("{}\n{}", anchor_write_body, anchor_verify_body);
         assert!(!combined.contains("production-ready"), "anchor CLI must not claim production-ready");
         assert!(!combined.contains("fully secure"), "anchor CLI must not claim fully secure");
         assert!(!combined.contains("physically immutable"), "anchor CLI must not claim physical immutability");
