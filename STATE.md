@@ -1,10 +1,10 @@
 # OpenWand — Project State
 
 ## Version
-0.9.0 (stable)
+0.9.0 (stable) — planning v1.0.0
 
 ## Status
-**v0.9.0 stable released. Tag `v0.9.0`.**
+**v0.9.0 stable released. v1.0.0 in progress. Wave 117A (post-v0.9 roadmap reset) locked.**
 
 Release: v0.9.0 — tag `v0.9.0`
 
@@ -48,6 +48,22 @@ Note: `openwand-content` is a stub crate (add() only). Will be implemented when 
 50 app crate pedantic/test-only warnings accepted as cosmetic.
 
 **Desktop feature build:** PASS (0 errors, 0 warnings).
+
+## v1.0.0 Release-Candidate Closure Arc
+
+| Wave | Title | Tag | Deliverable |
+|------|-------|-----|-------------|
+| 117A | Post-v0.9 Roadmap Reset | (this wave) | v1.0.0 roadmap (VJ-1 through VJ-5) |
+
+## v1.0.0 Blocker Plan
+
+| Blocker | Description | Priority |
+|---------|-------------|----------|
+| VJ-1: External review execution | Have external reviewer run the packet; classify or defer | P0 (gate) |
+| VJ-2: Provider validation decision | Validate or explicitly defer from v1.0 scope | P1 |
+| VJ-3: Linux GUI visual decision | Validate or preserve as documented caveat | P1 |
+| VJ-4: Final assurance/caveat audit | Reconcile all claims, non-claims, gaps, evidence | P0 (gate) |
+| VJ-5: v1.0 release candidate | Create rc.1 with artifact, checklist, caveats | P1 |
 
 ## v0.9.0 External Validation Arc
 

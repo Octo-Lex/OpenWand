@@ -395,3 +395,4 @@ Some waves collapse commits (e.g., commits 2+3 combined) when scope is smaller.
 | 115A | Release Automation | `wave-115a-lock` | 4,216 | `openwand release-check` CLI command |
 | 116A | v0.9.0 Release Preparation | `wave-116a-lock` | 4,216 | RELEASE_NOTES_v090_STABLE.md |
 | **v0.9.0** | **Stable Release** | **`v0.9.0`** | **4,216** | **RELEASE_NOTES_v090_STABLE.md** |
+| 117A | Post-v0.9 Roadmap Reset | (pending) | 4,216 | docs/V100_ROADMAP.md |
