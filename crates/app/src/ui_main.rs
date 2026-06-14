@@ -869,6 +869,7 @@ fn render_approval_resolution(
     // The pending approval state has tool_call_id; the runner's approval
     // recovery index maps this to the ARID.
     // Clone for each closure to avoid moved-value errors.
+    // Additional .clone() inside FnMut closures since they may fire multiple times.
     let arid_approve = tool_call_id.clone();
     let arid_reject = tool_call_id.clone();
     let tool_name_approve = tool_name.clone();
@@ -894,16 +895,17 @@ fn render_approval_resolution(
                         onclick: move |_| {
                             *APPROVAL_RESOLUTION_STATE.write() = ApprovalResolutionState::Pending;
                             let req = ApprovalResolutionRequest {
-                                approval_request_id: arid_approve,
-                                displayed_tool_name: Some(tool_name_approve),
+                                approval_request_id: arid_approve.clone(),
+                                displayed_tool_name: Some(tool_name_approve.clone()),
                                 decision: ApprovalDecisionDto::Approve,
                                 rationale: None,
                                 resolved_by: "desktop".into(),
                                 idempotency_key: format!("desktop_approve_{}", chrono::Utc::now().timestamp()),
                             };
+                            let runner = runner_approve.clone();
                             spawn(async move {
                                 let result = UiSessionService::submit_approval_resolution(
-                                    runner_approve.as_deref(),
+                                    runner.as_deref(),
                                     &req,
                                 ).await;
                                 *APPROVAL_RESOLUTION_STATE.write() = result;
@@ -919,16 +921,17 @@ fn render_approval_resolution(
                         onclick: move |_| {
                             *APPROVAL_RESOLUTION_STATE.write() = ApprovalResolutionState::Pending;
                             let req = ApprovalResolutionRequest {
-                                approval_request_id: arid_reject,
-                                displayed_tool_name: Some(tool_name_reject),
+                                approval_request_id: arid_reject.clone(),
+                                displayed_tool_name: Some(tool_name_reject.clone()),
                                 decision: ApprovalDecisionDto::Reject,
                                 rationale: Some("Rejected via desktop".into()),
                                 resolved_by: "desktop".into(),
                                 idempotency_key: format!("desktop_reject_{}", chrono::Utc::now().timestamp()),
                             };
+                            let runner = runner_reject.clone();
                             spawn(async move {
                                 let result = UiSessionService::submit_approval_resolution(
-                                    runner_reject.as_deref(),
+                                    runner.as_deref(),
                                     &req,
                                 ).await;
                                 *APPROVAL_RESOLUTION_STATE.write() = result;
@@ -963,6 +966,7 @@ fn render_evidence_export(
     use openwand_app::ui::design_tokens::*;
 
     let export_state = EVIDENCE_EXPORT_STATE.read().clone();
+    let workflow_execution_id = workflow_execution_id.map(|s| s.to_string());
 
     let section_style = format!(
         "padding: {} {}; border-top: 1px solid {}; margin-top: {};",
@@ -1009,13 +1013,13 @@ fn render_evidence_export(
         div { style: "{section_style}",
             div { style: "{label_style}", "Evidence Export" }
 
-            if let Some(exec_id) = workflow_execution_id {
+            if let Some(ref exec_id) = workflow_execution_id {
                 if can_export {
                     button {
                         style: "{btn_style}",
                         onclick: move |_| {
                             *EVIDENCE_EXPORT_STATE.write() = EvidenceExportState::Pending;
-                            let exec_id = exec_id.to_string();
+                            let exec_id = exec_id.clone();
                             spawn(async move {
                                 let working_dir = CURRENT_SESSION
                                     .read()
