@@ -4,7 +4,7 @@
 0.9.0 (stable) — planning v1.0.0
 
 ## Status
-**v0.9.0 stable released. v1.0.0 in progress. Wave 117A (post-v0.9 roadmap reset) locked.**
+**v0.9.0 stable released. v1.0.0 in progress. Wave 118A (final assurance audit) locked.**
 
 Release: v0.9.0 — tag `v0.9.0`
 
@@ -43,6 +43,7 @@ Note: `openwand-content` is a stub crate (add() only). Will be implemented when 
 **v0.9.0 stable baseline (Wave 116A):** 4,216 tests on Windows, 0 failures.
 - 4,200 carried from v0.8.0
 - +16 from v0.9.0 arc (114A: +8, 115A: +8)
+- +8 from 118A audit guards
 
 **Clippy posture:** 0 actionable production warnings on 11 non-app crates (HB-G5).
 50 app crate pedantic/test-only warnings accepted as cosmetic.
@@ -53,7 +54,8 @@ Note: `openwand-content` is a stub crate (add() only). Will be implemented when 
 
 | Wave | Title | Tag | Deliverable |
 |------|-------|-----|-------------|
-| 117A | Post-v0.9 Roadmap Reset | (this wave) | v1.0.0 roadmap (VJ-1 through VJ-5) |
+| 117A | Post-v0.9 Roadmap Reset | `wave-117a-lock` | v1.0.0 roadmap (VJ-1 through VJ-5) |
+| 118A | Final Assurance Audit | (this wave) | docs/FINAL_ASSURANCE_AUDIT.md |
 
 ## v1.0.0 Blocker Plan
 
