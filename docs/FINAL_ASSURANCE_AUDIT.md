@@ -54,7 +54,8 @@ EXTERNAL_REVIEW_PACKET, and RELEASE_CHECKLIST for consistency.
 | X-06 | Not full Linux GUI support (visual rendering not validated) | v0.8.0 | ✅ Consistently disclaimed |
 | X-07 | Not provider completeness (LM Studio + Z.AI only) | v0.2.0 | ✅ Consistently disclaimed |
 | X-08 | Not stable API guarantee | v0.5.0 | ✅ Consistently disclaimed |
-| X-09 | Not externally reviewed (packet exists, no reviewer ran it) | v0.9.0 | ✅ Consistently disclaimed |
+| X-09 | Not externally reviewed (packet exists, no reviewer ran it) | v0.9.0 | ✅ Consistently disclaimed — **Consciously deferred for v1.0 final (Wave 123A)** |
+| X-15 | External review consciously deferred from v1.0.0 final | Wave 123A | ✅ Active — docs/VK1_EXTERNAL_REVIEW_CLASSIFICATION.md |
 | X-10 | Not macOS validated | v0.4.0 | ✅ Consistently disclaimed |
 | X-11 | Fully consistent tamper passes (rewrite store + anchor) | v0.5.0 | ✅ Consistently disclaimed |
 | X-12 | Windows final-component TOCTOU residual (safe failure) | v0.8.0 | ✅ Consistently disclaimed |
