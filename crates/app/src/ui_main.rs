@@ -267,7 +267,7 @@ fn App() -> Element {
                 if (*ACTIVE_TAB.read()) == "console" {
                     { render_console_pane() }
                 } else if (*ACTIVE_TAB.read()) == "inspector" {
-                    { render_inspector_pane() }
+                    { render_inspector_pane(service.clone()) }
                 } else {
                     { render_detail_pane(service.clone(), memory.clone()) }
                 }
@@ -414,7 +414,7 @@ fn render_console_pane() -> Element {
 
 // ── Inspector Pane ─────────────────────────────────────────
 
-fn render_inspector_pane() -> Element {
+fn render_inspector_pane(service: Arc<UiSessionService>) -> Element {
     use openwand_app::ui::workflow_evidence_chain_inspector_components::*;
     
     use openwand_app::ui::workflow_audit_packet_distribution_components::*;
@@ -697,7 +697,7 @@ fn render_workflow_run_initiation(
 
     // Status text
     let status_text = req_state.status_label().to_string();
-    let status_color = match &*req_state {
+    let status_color = match &req_state {
         WorkflowRunRequestState::Created { .. } => colors::STATUS_SUCCESS,
         WorkflowRunRequestState::Blocked { .. } => colors::STATUS_WARN,
         WorkflowRunRequestState::Failed { .. } => colors::STATUS_ERROR,
@@ -707,7 +707,7 @@ fn render_workflow_run_initiation(
 
     let btn_style = format!(
         "padding: {} {}; background: {}; color: white; border: none; border-radius: {}; cursor: {}; font-size: {};",
-        spacing::SPACE_SM, spacing::SPACE_LG, colors::PRIMARY, radius::RADIUS_SM, typo::TEXT_SM,
+        spacing::SPACE_SM, spacing::SPACE_LG, colors::PRIMARY, radius::RADIUS_SM, "pointer", typo::TEXT_SM,
     );
     let btn_disabled_style = format!(
         "padding: {} {}; background: {}; color: white; border: none; border-radius: {}; cursor: not-allowed; font-size: {};",
@@ -715,7 +715,7 @@ fn render_workflow_run_initiation(
     );
 
     // Detail for terminal states
-    let detail_text = match &*req_state {
+    let detail_text = match &req_state {
         WorkflowRunRequestState::Created { execution_id, status, stage_count, predicates_passed, predicates_total } => {
             format!("Run {} — {} — {} stages — {}/{} predicates passed", execution_id, status, stage_count, predicates_passed, predicates_total)
         }
@@ -868,7 +868,13 @@ fn render_approval_resolution(
     // Build ARID from tool_call_id for the explicit binding
     // The pending approval state has tool_call_id; the runner's approval
     // recovery index maps this to the ARID.
-    let arid = tool_call_id.clone();
+    // Clone for each closure to avoid moved-value errors.
+    let arid_approve = tool_call_id.clone();
+    let arid_reject = tool_call_id.clone();
+    let tool_name_approve = tool_name.clone();
+    let tool_name_reject = tool_name.clone();
+    let runner_approve = active_runner.as_ref().map(|r| r.runner.clone());
+    let runner_reject = active_runner.as_ref().map(|r| r.runner.clone());
 
     rsx! {
         div { style: "{card_bg}",
@@ -888,17 +894,16 @@ fn render_approval_resolution(
                         onclick: move |_| {
                             *APPROVAL_RESOLUTION_STATE.write() = ApprovalResolutionState::Pending;
                             let req = ApprovalResolutionRequest {
-                                approval_request_id: arid.clone(),
-                                displayed_tool_name: Some(tool_name.clone()),
+                                approval_request_id: arid_approve,
+                                displayed_tool_name: Some(tool_name_approve),
                                 decision: ApprovalDecisionDto::Approve,
                                 rationale: None,
                                 resolved_by: "desktop".into(),
                                 idempotency_key: format!("desktop_approve_{}", chrono::Utc::now().timestamp()),
                             };
-                            let runner_opt = active_runner.as_ref().map(|r| r.runner.clone());
                             spawn(async move {
                                 let result = UiSessionService::submit_approval_resolution(
-                                    runner_opt.as_deref(),
+                                    runner_approve.as_deref(),
                                     &req,
                                 ).await;
                                 *APPROVAL_RESOLUTION_STATE.write() = result;
@@ -914,17 +919,16 @@ fn render_approval_resolution(
                         onclick: move |_| {
                             *APPROVAL_RESOLUTION_STATE.write() = ApprovalResolutionState::Pending;
                             let req = ApprovalResolutionRequest {
-                                approval_request_id: arid.clone(),
-                                displayed_tool_name: Some(tool_name.clone()),
+                                approval_request_id: arid_reject,
+                                displayed_tool_name: Some(tool_name_reject),
                                 decision: ApprovalDecisionDto::Reject,
                                 rationale: Some("Rejected via desktop".into()),
                                 resolved_by: "desktop".into(),
                                 idempotency_key: format!("desktop_reject_{}", chrono::Utc::now().timestamp()),
                             };
-                            let runner_opt = active_runner.as_ref().map(|r| r.runner.clone());
                             spawn(async move {
                                 let result = UiSessionService::submit_approval_resolution(
-                                    runner_opt.as_deref(),
+                                    runner_reject.as_deref(),
                                     &req,
                                 ).await;
                                 *APPROVAL_RESOLUTION_STATE.write() = result;
@@ -970,7 +974,7 @@ fn render_evidence_export(
     );
 
     let status_text = export_state.status_label().to_string();
-    let status_color = match &*export_state {
+    let status_color = match &export_state {
         EvidenceExportState::Exported { .. } => colors::STATUS_SUCCESS,
         EvidenceExportState::Failed { .. } => colors::STATUS_ERROR,
         EvidenceExportState::Unavailable { .. } => colors::TEXT_MUTED,
@@ -986,7 +990,7 @@ fn render_evidence_export(
         if can_export { "pointer" } else { "not-allowed" }, typo::TEXT_SM,
     );
 
-    let detail = match &*export_state {
+    let detail = match &export_state {
         EvidenceExportState::Exported { artifact_path, record_count, packet_hash, certifies_external_truth, verifies_artifacts } => {
             format!("{} — {} records — hash: {} — certifies: {} verifies: {}",
                 artifact_path,
