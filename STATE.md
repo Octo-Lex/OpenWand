@@ -1,18 +1,18 @@
 # OpenWand — Project State
 
 ## Version
-0.8.0 (stable) — planning v0.9.0
+0.9.0 (stable)
 
 ## Status
-**v0.8.0 stable released. v0.9.0 in progress. Wave 113A (post-v0.8 roadmap reset) locked.**
+**v0.9.0 stable released. Tag `v0.9.0`.**
 
-Release: v0.8.0 — tag `v0.8.0`
+Release: v0.9.0 — tag `v0.9.0`
 
-Binary: 18,344,960 bytes (~17.5 MB), SHA-256 `3CBBB103BC386D579801F2F50EB4E3A27DCB031D015E147C0324EA9B4A02BD3C`
+Binary: 17,702,912 bytes (~16.9 MB), SHA-256 `3F678ACD185D8C1A2FD168202C8B76A3140B20A2E1EB684081A591E0A9A4ECF9`
 
-Stable for v0.8.0 milestone scope. Not production-ready. Not formal security review.
+Stable for v0.9.0 milestone scope. Not production-ready. Not formal security review.
 No physical immutability. No remote attestation. No stable API guarantee.
-No full Linux GUI support. No provider completeness.
+No full Linux GUI support. No provider completeness. No external review.
 
 ## Workspace Structure
 ```
@@ -40,9 +40,9 @@ Note: `openwand-content` is a stub crate (add() only). Will be implemented when 
 - 3,939 carried from v0.3.0
 - +60 new tests from v0.4.0 arc (88A: +14, 88B: +20, 88C: +16, 89A: +10)
 
-**v0.8.0 stable baseline (Wave 112A):** 4,200 tests on Windows, 0 failures.
-- 4,176 carried from v0.7.0
-- +24 from v0.8.0 arc (109A: +5, 110A: +9, 111A: +10)
+**v0.9.0 stable baseline (Wave 116A):** 4,216 tests on Windows, 0 failures.
+- 4,200 carried from v0.8.0
+- +16 from v0.9.0 arc (114A: +8, 115A: +8)
 
 **Clippy posture:** 0 actionable production warnings on 11 non-app crates (HB-G5).
 50 app crate pedantic/test-only warnings accepted as cosmetic.
@@ -55,17 +55,18 @@ Note: `openwand-content` is a stub crate (add() only). Will be implemented when 
 |------|-------|-----|-------------|
 | 113A | Post-v0.8 Roadmap Reset | `wave-113a-lock` | v0.9.0 roadmap (VI-1 through VI-5) |
 | 114A | Guided Evidence Flow | `wave-114a-lock` | `openwand review` guided CLI command |
-| 115A | Release Automation | (this wave) | `openwand release-check` executable readiness checks |
+| 115A | Release Automation | `wave-115a-lock` | `openwand release-check` executable readiness checks |
+| 116A | v0.9.0 Release Preparation | (this wave) | Release artifact, notes, VI reconciliation |
 
 ## v0.9.0 Blocker Plan
 
 | Blocker | Description | Priority |
 |---------|-------------|----------|
-| VI-1: External review execution | Have a real reviewer run the review packet | P1 (core) |
-| VI-2: Evidence report UX integration | Guided CLI or desktop flow for evidence generation | P1 (core) |
+| VI-1: External review execution | Deferred — requires external party | P1 (core) |
+| VI-2: Evidence report UX integration | ✅ Resolved — `openwand review` guided flow | P1 (core) |
 | VI-3: Provider validation expansion | Direct OpenAI/Anthropic/Ollama if strategic | P2 |
 | VI-4: Linux GUI visual validation | Move from partial to rendered GUI validation | P2 |
-| VI-5: Release automation | Executable release checklist checks | P2 |
+| VI-5: Release automation | ✅ Resolved — `openwand release-check` | P2 |
 
 ## v0.8.0 Operational Hardening Arc
 
@@ -179,7 +180,7 @@ Note: `openwand-content` is a stub crate (add() only). Will be implemented when 
 ## Release Lineage
 
 ```
-v0.1.0-alpha -> v0.1.0-beta -> v0.2.0-beta -> v0.2.0-rc.1 -> v0.2.0 -> v0.3.0 -> v0.4.0 -> v0.5.0 -> v0.6.0 -> v0.7.0 -> v0.8.0
+v0.1.0-alpha -> v0.1.0-beta -> v0.2.0-beta -> v0.2.0-rc.1 -> v0.2.0 -> v0.3.0 -> v0.4.0 -> v0.5.0 -> v0.6.0 -> v0.7.0 -> v0.8.0 -> v0.9.0
 ```
 
 ## Hard Boundaries (Global)
