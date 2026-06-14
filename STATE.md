@@ -1,17 +1,18 @@
 # OpenWand — Project State
 
 ## Version
-0.7.0 (stable) — planning v0.8.0
+0.8.0 (stable)
 
 ## Status
-**v0.7.0 stable released. v0.8.0 in progress. Wave 108A (post-v0.7 roadmap reset) locked.**
+**v0.8.0 stable released. Tag `v0.8.0`.**
 
-Release: v0.7.0 — tag `v0.7.0`
+Release: v0.8.0 — tag `v0.8.0`
 
 Binary: 18,344,960 bytes (~17.5 MB), SHA-256 `3CBBB103BC386D579801F2F50EB4E3A27DCB031D015E147C0324EA9B4A02BD3C`
 
-Stable for v0.7.0 milestone scope. Not production-ready. Not formal security review.
+Stable for v0.8.0 milestone scope. Not production-ready. Not formal security review.
 No physical immutability. No remote attestation. No stable API guarantee.
+No full Linux GUI support. No provider completeness.
 
 ## Workspace Structure
 ```
@@ -39,9 +40,9 @@ Note: `openwand-content` is a stub crate (add() only). Will be implemented when 
 - 3,939 carried from v0.3.0
 - +60 new tests from v0.4.0 arc (88A: +14, 88B: +20, 88C: +16, 89A: +10)
 
-**v0.7.0 stable baseline (Wave 107A):** 4,176 tests on Windows, 0 failures.
-- 4,099 carried from v0.6.0
-- +77 from v0.7.0 arc (104A: +22, 104B: +24, 105A: +4, 105B: +7, 106A: +20)
+**v0.8.0 stable baseline (Wave 112A):** 4,200 tests on Windows, 0 failures.
+- 4,176 carried from v0.7.0
+- +24 from v0.8.0 arc (109A: +5, 110A: +9, 111A: +10)
 
 **Clippy posture:** 0 actionable production warnings on 11 non-app crates (HB-G5).
 50 app crate pedantic/test-only warnings accepted as cosmetic.
@@ -55,17 +56,18 @@ Note: `openwand-content` is a stub crate (add() only). Will be implemented when 
 | 108A | Post-v0.7 Roadmap Reset | `wave-108a-lock` | v0.8.0 roadmap (VH-1 through VH-5) |
 | 109A | Linux GUI Smoke Test | `wave-109a-lock` | Proxmox VM native Linux: desktop binary compiles (9 bugs fixed), window created, rendering not verified |
 | 110A | External Review Packet | `wave-110a-lock` | Reviewer-ready packet: commands, exit codes, caveats |
-| 111A | Release Process Hardening | (this wave) | Repeatable release checklist with openwand-ui build gate correction |
+| 111A | Release Process Hardening | `wave-111a-lock` | Repeatable release checklist with openwand-ui build gate correction |
+| 112A | v0.8.0 Release Preparation | (this wave) | Release artifact, notes, VH reconciliation |
 
 ## v0.8.0 Blocker Plan
 
 | Blocker | Description | Priority |
 |---------|-------------|----------|
-| VH-1: Linux GUI runtime validation | Attempt WSLg/Xvfb display smoke test; defer if unresolvable | P1 (core) |
+| VH-1: Linux GUI runtime validation | ✅ Partial — Proxmox VM, desktop binary compiles, window created | P1 (core) |
 | VH-2: Provider validation expansion | Direct OpenAI/Anthropic/Ollama if strategic | P2 |
-| VH-3: External review packet | Bundle evidence into reviewer-ready package | P1 (core) |
+| VH-3: External review packet | ✅ Resolved — docs/EXTERNAL_REVIEW_PACKET.md | P1 (core) |
 | VH-4: Evidence report UX integration | Surface evidence report in desktop or guided CLI | P2 |
-| VH-5: Release/process hardening | Repeatable release workflow scripts | P2 |
+| VH-5: Release/process hardening | ✅ Resolved — docs/RELEASE_CHECKLIST.md | P2 |
 
 ## v0.7.0 External Assurance Arc
 
@@ -158,7 +160,7 @@ Note: `openwand-content` is a stub crate (add() only). Will be implemented when 
 ## Release Lineage
 
 ```
-v0.1.0-alpha -> v0.1.0-beta -> v0.2.0-beta -> v0.2.0-rc.1 -> v0.2.0 -> v0.3.0 -> v0.4.0 -> v0.5.0 -> v0.6.0 -> v0.7.0
+v0.1.0-alpha -> v0.1.0-beta -> v0.2.0-beta -> v0.2.0-rc.1 -> v0.2.0 -> v0.3.0 -> v0.4.0 -> v0.5.0 -> v0.6.0 -> v0.7.0 -> v0.8.0
 ```
 
 ## Hard Boundaries (Global)
