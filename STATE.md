@@ -1,10 +1,10 @@
 # OpenWand — Project State
 
 ## Version
-0.8.0 (stable)
+0.8.0 (stable) — planning v0.9.0
 
 ## Status
-**v0.8.0 stable released. Tag `v0.8.0`.**
+**v0.8.0 stable released. v0.9.0 in progress. Wave 113A (post-v0.8 roadmap reset) locked.**
 
 Release: v0.8.0 — tag `v0.8.0`
 
@@ -48,6 +48,22 @@ Note: `openwand-content` is a stub crate (add() only). Will be implemented when 
 50 app crate pedantic/test-only warnings accepted as cosmetic.
 
 **Desktop feature build:** PASS (0 errors, 0 warnings).
+
+## v0.9.0 External Validation Arc
+
+| Wave | Title | Tag | Deliverable |
+|------|-------|-----|-------------|
+| 113A | Post-v0.8 Roadmap Reset | (this wave) | v0.9.0 roadmap (VI-1 through VI-5) |
+
+## v0.9.0 Blocker Plan
+
+| Blocker | Description | Priority |
+|---------|-------------|----------|
+| VI-1: External review execution | Have a real reviewer run the review packet | P1 (core) |
+| VI-2: Evidence report UX integration | Guided CLI or desktop flow for evidence generation | P1 (core) |
+| VI-3: Provider validation expansion | Direct OpenAI/Anthropic/Ollama if strategic | P2 |
+| VI-4: Linux GUI visual validation | Move from partial to rendered GUI validation | P2 |
+| VI-5: Release automation | Executable release checklist checks | P2 |
 
 ## v0.8.0 Operational Hardening Arc
 
