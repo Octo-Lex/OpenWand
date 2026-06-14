@@ -4,7 +4,7 @@
 0.9.0 (stable) — planning v1.0.0
 
 ## Status
-**v0.9.0 stable released. v1.0.0 in progress. Wave 118A (final assurance audit) locked.**
+**v0.9.0 stable released. v1.0.0 in progress. Wave 119A (release-scope decisions) locked.**
 
 Release: v0.9.0 — tag `v0.9.0`
 
@@ -44,6 +44,7 @@ Note: `openwand-content` is a stub crate (add() only). Will be implemented when 
 - 4,200 carried from v0.8.0
 - +16 from v0.9.0 arc (114A: +8, 115A: +8)
 - +8 from 118A audit guards
+- +8 from 119A decision guards
 
 **Clippy posture:** 0 actionable production warnings on 11 non-app crates (HB-G5).
 50 app crate pedantic/test-only warnings accepted as cosmetic.
@@ -55,15 +56,16 @@ Note: `openwand-content` is a stub crate (add() only). Will be implemented when 
 | Wave | Title | Tag | Deliverable |
 |------|-------|-----|-------------|
 | 117A | Post-v0.9 Roadmap Reset | `wave-117a-lock` | v1.0.0 roadmap (VJ-1 through VJ-5) |
-| 118A | Final Assurance Audit | (this wave) | docs/FINAL_ASSURANCE_AUDIT.md |
+| 118A | Final Assurance Audit | `wave-118a-lock` | docs/FINAL_ASSURANCE_AUDIT.md |
+| 119A | Release-Scope Decisions | (this wave) | docs/V100_RELEASE_DECISIONS.md |
 
 ## v1.0.0 Blocker Plan
 
 | Blocker | Description | Priority |
 |---------|-------------|----------|
-| VJ-1: External review execution | Have external reviewer run the packet; classify or defer | P0 (gate) |
-| VJ-2: Provider validation decision | Validate or explicitly defer from v1.0 scope | P1 |
-| VJ-3: Linux GUI visual decision | Validate or preserve as documented caveat | P1 |
+| VJ-1: External review execution | Deferred — packet ready, no reviewer available | P0 (gate) |
+| VJ-2: Provider validation decision | Deferred — existing LM Studio + Z.AI matrix preserved | P1 |
+| VJ-3: Linux GUI visual decision | Deferred — partial (compile + launch) accepted as caveat | P1 |
 | VJ-4: Final assurance/caveat audit | Reconcile all claims, non-claims, gaps, evidence | P0 (gate) |
 | VJ-5: v1.0 release candidate | Create rc.1 with artifact, checklist, caveats | P1 |
 

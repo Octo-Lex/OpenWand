@@ -1,7 +1,7 @@
 # Security Scan Results — Wave 105A
 
 **Scan date:** 2026-06-14
-**Workspace:** OpenWand v0.7.0 (post-104B)
+**Workspace:** OpenWand v0.9.0 (findings unchanged since v0.7.0 scan)
 **Scanner versions:** cargo-audit 0.22.1, RustSec advisory DB (1,131 advisories)
 **Clippy:** rustc 1.95.0 (clippy 0.1.95)
 

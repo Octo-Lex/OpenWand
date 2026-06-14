@@ -2,6 +2,7 @@
 
 Documented from disk-verified reconnaissance at Wave 40. Updated at Wave 50A.
 Updated again at Wave 69G with halt-era blocker closures and current gaps.
+Updated at Wave 118A: all gaps remain accurate through v0.9.0.
 
 ---
 

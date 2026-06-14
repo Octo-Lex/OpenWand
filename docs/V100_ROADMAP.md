@@ -2,7 +2,7 @@
 
 **Theme:** Release-candidate closure.
 
-**Status:** Planning (Wave 117A)
+**Status:** In progress (Wave 119A)
 
 ---
 
@@ -49,10 +49,10 @@ v1.0  release-candidate closure             Close
 
 | Blocker | Description | Priority |
 |---------|-------------|----------|
-| VJ-1 | External review execution | P0 (gate) |
-| VJ-2 | Provider validation decision | P1 |
-| VJ-3 | Linux GUI visual/interactivity decision | P1 |
-| VJ-4 | Final assurance/caveat audit | P0 (gate) |
+| VJ-1 | External review execution — Deferred (no reviewer available) | P0 (gate) |
+| VJ-2 | Provider validation decision — Deferred (matrix preserved) | P1 |
+| VJ-3 | Linux GUI visual decision — Deferred (partial accepted) | P1 |
+| VJ-4 | Final assurance/caveat audit — Resolved | P0 (gate) |
 | VJ-5 | v1.0 release candidate | P1 |
 
 ---

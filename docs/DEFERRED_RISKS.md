@@ -90,10 +90,10 @@ None. Zero OpenWand direct dependencies have vulnerability or unmaintained advis
 - **Detail:** STATE.md fully rewritten, KNOWN_GAPS.md updated with halt-era closures and current gaps, WAVES.md extended through 69G, UI_DESIGN_SYSTEM.md token names corrected, README.md immutability claims corrected.
 
 ### DEFERRED-007: Local branch publication
-- **Status:** Accepted non-blocking / publication pending by user decision
+- **Status:** ✅ Resolved — all versions published since v0.1.0-alpha
 - **Category:** Publication process
-- **Detail:** 23 commits ahead of origin/master (Wave 50A through 69G). Not pushed in this wave.
-- **Resolution path:** User decides when and how to publish.
+- **Detail:** All releases from v0.1.0-alpha through v0.9.0 published to GitHub remote.
+- **Resolution path:** CLOSED. Remote is in sync.
 
 ### DEFERRED-008: Sandbox TOCTOU boundary
 - **Status:** ✅ Closed by NtCreateFile handle-relative traversal (78C) — Unix (73B) + Windows (78C)
