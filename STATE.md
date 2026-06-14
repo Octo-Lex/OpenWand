@@ -57,7 +57,8 @@ Note: `openwand-content` is a stub crate (add() only). Will be implemented when 
 | 109A | Linux GUI Smoke Test | `wave-109a-lock` | Proxmox VM native Linux: desktop binary compiles (9 bugs fixed), window created, rendering not verified |
 | 110A | External Review Packet | `wave-110a-lock` | Reviewer-ready packet: commands, exit codes, caveats |
 | 111A | Release Process Hardening | `wave-111a-lock` | Repeatable release checklist with openwand-ui build gate correction |
-| 112A | v0.8.0 Release Preparation | (this wave) | Release artifact, notes, VH reconciliation |
+| 112A | v0.8.0 Release Preparation | `wave-112a-lock` | Release artifact, notes, VH reconciliation |
+| 112B | v0.8.0 Declaration | `v0.8.0` | Tag v0.8.0, publish release |
 
 ## v0.8.0 Blocker Plan
 
