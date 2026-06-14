@@ -4,11 +4,11 @@
 1.0.0-rc.1 (release candidate) — planning v1.0.0 final
 
 ## Status
-**v1.0.0-rc.1 released. v1.0.0 final in progress. Wave 121A (post-rc.1 roadmap reset) locked.**
+**v1.0.0-rc.1 released. v1.0.0 final in progress. Wave 122A (rc.1 soak) locked.**
 
 Release: v1.0.0-rc.1 — tag `v1.0.0-rc.1`
 
-Binary: 17,702,912 bytes (~16.9 MB), SHA-256 `3F678ACD185D8C1A2FD168202C8B76A3140B20A2E1EB684081A591E0A9A4ECF9`
+Binary: 17,704,960 bytes (~16.9 MB), SHA-256 `0603647A00A92B126FE8417099D3422130224262DB6C86DC94CCFD699915F685`
 
 Release candidate for v1.0.0. Not production-ready. Not formal certification.
 No physical immutability. No remote attestation. No stable API guarantee.
@@ -57,6 +57,7 @@ Baseline for rc.1: 4,232 total
 | Wave | Title | Tag | Deliverable |
 |------|-------|-----|-------------|
 | 121A | Post-rc.1 Roadmap Reset | `wave-121a-lock` | v1.0.0 final roadmap (VK-1 through VK-5) |
+| 122A | rc.1 Soak / Regression Window | (this wave) | docs/RC1_SOAK_REPORT.md |
 
 ## v1.0.0 Final Blocker Plan
 
