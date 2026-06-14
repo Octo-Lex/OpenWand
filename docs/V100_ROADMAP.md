@@ -2,7 +2,7 @@
 
 **Theme:** Release-candidate closure.
 
-**Status:** In progress (Wave 119A)
+**Status:** rc.1 prepared (Wave 120A)
 
 ---
 

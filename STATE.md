@@ -1,18 +1,18 @@
 # OpenWand — Project State
 
 ## Version
-0.9.0 (stable) — planning v1.0.0
+1.0.0-rc.1 (release candidate)
 
 ## Status
-**v0.9.0 stable released. v1.0.0 in progress. Wave 119A (release-scope decisions) locked.**
+**v1.0.0-rc.1 release candidate. Wave 120A (rc.1 preparation) locked.**
 
-Release: v0.9.0 — tag `v0.9.0`
+Release: v1.0.0-rc.1 — tag `v1.0.0-rc.1` (pending declaration)
 
 Binary: 17,702,912 bytes (~16.9 MB), SHA-256 `3F678ACD185D8C1A2FD168202C8B76A3140B20A2E1EB684081A591E0A9A4ECF9`
 
-Stable for v0.9.0 milestone scope. Not production-ready. Not formal security review.
+Release candidate for v1.0.0. Not production-ready. Not formal certification.
 No physical immutability. No remote attestation. No stable API guarantee.
-No full Linux GUI support. No provider completeness. No external review.
+No full Linux GUI support. No provider completeness. No external review execution.
 
 ## Workspace Structure
 ```
@@ -45,6 +45,7 @@ Note: `openwand-content` is a stub crate (add() only). Will be implemented when 
 - +16 from v0.9.0 arc (114A: +8, 115A: +8)
 - +8 from 118A audit guards
 - +8 from 119A decision guards
+Baseline for rc.1: 4,232 total
 
 **Clippy posture:** 0 actionable production warnings on 11 non-app crates (HB-G5).
 50 app crate pedantic/test-only warnings accepted as cosmetic.
@@ -57,7 +58,8 @@ Note: `openwand-content` is a stub crate (add() only). Will be implemented when 
 |------|-------|-----|-------------|
 | 117A | Post-v0.9 Roadmap Reset | `wave-117a-lock` | v1.0.0 roadmap (VJ-1 through VJ-5) |
 | 118A | Final Assurance Audit | `wave-118a-lock` | docs/FINAL_ASSURANCE_AUDIT.md |
-| 119A | Release-Scope Decisions | (this wave) | docs/V100_RELEASE_DECISIONS.md |
+| 119A | Release-Scope Decisions | `wave-119a-lock` | docs/V100_RELEASE_DECISIONS.md |
+| 120A | v1.0.0-rc.1 Preparation | (this wave) | RELEASE_NOTES_v100_RC1.md |
 
 ## v1.0.0 Blocker Plan
 
@@ -201,7 +203,7 @@ Note: `openwand-content` is a stub crate (add() only). Will be implemented when 
 ## Release Lineage
 
 ```
-v0.1.0-alpha -> v0.1.0-beta -> v0.2.0-beta -> v0.2.0-rc.1 -> v0.2.0 -> v0.3.0 -> v0.4.0 -> v0.5.0 -> v0.6.0 -> v0.7.0 -> v0.8.0 -> v0.9.0
+v0.1.0-alpha -> v0.1.0-beta -> v0.2.0-beta -> v0.2.0-rc.1 -> v0.2.0 -> v0.3.0 -> v0.4.0 -> v0.5.0 -> v0.6.0 -> v0.7.0 -> v0.8.0 -> v0.9.0 -> v1.0.0-rc.1
 ```
 
 ## Hard Boundaries (Global)
