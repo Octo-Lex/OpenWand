@@ -411,4 +411,5 @@ Some waves collapse commits (e.g., commits 2+3 combined) when scope is smaller.
 | 128A | Trace Verification Fix + Patch Criteria | `wave-128a-lock` | 4,404 | docs/VL3_MAINTENANCE_PATCH_CRITERIA.md |
 | 129A | v1.0.1 Patch Preparation | `wave-129a-lock` | 4,416 | RELEASE_NOTES_v101_PATCH.md |
 | 129B | v1.0.1 Patch Declaration | `wave-129b-lock` | 4,430 | docs/V101_PATCH_DECLARATION.md |
-| 130A | External Review Reclassification | (pending) | 4,447 | docs/VL2_EXTERNAL_REVIEW_RECLASSIFICATION.md |
+| 130A | External Review Reclassification | `wave-130a-lock` | 4,447 | docs/VL2_EXTERNAL_REVIEW_RECLASSIFICATION.md |
+| 131A | API Stability Policy | (pending) | 4,468 | docs/API_STABILITY_POLICY.md |
