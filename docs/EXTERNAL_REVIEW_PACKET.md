@@ -1,8 +1,8 @@
 # OpenWand External Review Packet
 
-**Version:** v1.0.0-rc.1
-**Updated:** Wave 124A (final claim re-audit)
-**Date:** 2026-06-14
+**Version:** v1.0.1
+**Updated:** Wave 130A (post-v1.0 external review re-classification)
+**Date:** 2026-06-15
 **Status:** Reviewer-ready
 
 ---
@@ -36,7 +36,19 @@ cargo build --release --bin openwand-ui --features desktop
 
 ```bash
 ./target/release/openwand --version
-# Expected: openwand 1.0.0-rc.1
+# Expected: openwand 1.0.1
+```
+
+### Verify Artifact Identity
+
+```bash
+# CLI binary
+sha256sum target/release/openwand
+# Expected (v1.0.1): 5ED051CAFF4534F372B6ABF10D1263422F3CE1357814A121DF4822848857ECF5
+
+# Desktop binary
+sha256sum target/release/openwand-ui
+# Expected (v1.0.1): 2C6AB04D42AA6EFE742643CB344456814222786D6BCB67ACA5D8A56E785C7D40
 ```
 
 ### Generate Test Session (if needed)
@@ -54,8 +66,11 @@ cargo build --release --bin openwand-ui --features desktop
 ### Command
 
 ```bash
-openwand trace-verify <session-id>
+openwand trace-verify <session-id> [--db <path>]
 ```
+
+> **v1.0.1 change:** The `--db` flag is now honored. Previously, the command
+> silently used `%APPDATA%/openwand/openwand.db` regardless of the flag.
 
 ### What It Does
 
@@ -64,6 +79,11 @@ Reads the trace store for the given session and verifies:
 2. **Hash correctness** — recomputes BLAKE3 hashes for every entry payload and
    compares against stored `entry_hash` values (via `Blake3HashPolicy`)
 3. **Ordering** — entries are globally sequenced with no gaps
+
+> **v1.0.1 fix (F-VL1-1):** Hash recomputation now uses the same canonical
+> scope serialization (`serde_json::to_string`) as the writer path. In v1.0.0,
+> the verifier used `format!("{:?}")` which produced different bytes, causing
+> all fresh traces to fail verification.
 
 ### Exit Codes
 
@@ -74,28 +94,6 @@ Reads the trace store for the given session and verifies:
 | 2 | Fail — integrity violation detected (broken chain or hash mismatch) |
 | 3 | Inconclusive — not enough data to verify |
 | 4 | Unsupported — backend does not support verification |
-
-### Expected Output (Pass)
-
-```
-Trace Verification Report
-=========================
-Session:    <session-id>
-Result:     Pass
-Entries:    <N>
-Hash Policy: Blake3HashPolicy
-
-Checks performed:
-  - Chain continuity (prev_hash → entry_hash linkage)
-  - Hash recomputation (BLAKE3 over payload bytes)
-  - Global sequence ordering
-
-Note: Pass proves that the trace store is internally consistent and
-that stored hashes match recomputed hashes. It does NOT prove physical
-immutability — an attacker who rewrites the store AND recomputes all
-hashes can produce a self-consistent trace. Full immutability requires
-an external trust anchor (see Section 4).
-```
 
 ### What It Proves
 
@@ -116,7 +114,7 @@ an external trust anchor (see Section 4).
 ### Command
 
 ```bash
-openwand operation-replay --session <session-id> --operations <ops.json>
+openwand operation-replay --session <session-id> --operations <ops.json> [--db <path>]
 ```
 
 ### Input Format (ops.json)
@@ -162,19 +160,6 @@ Checks whether each desktop operation has corresponding trace evidence:
 | 3 | Inconclusive — legacy trace without expected event types |
 | 4 | Unsupported — operation type not recognized |
 
-### What It Proves
-
-- Desktop-initiated operations (workflow runs, approvals, exports) have
-  corresponding trace entries in the session's trace store
-- The "replay" is correspondence checking, NOT execution replay — the verifier
-  does not instantiate runners, tools, exporters, gates, or policies
-
-### What It Does NOT Prove
-
-- That the operations were executed correctly
-- That the trace entries themselves are authentic (see Section 2)
-- Workflow operations on legacy traces (pre-v0.6) — reported as Inconclusive
-
 ---
 
 ## 4. External Checkpoint Anchor
@@ -182,8 +167,11 @@ Checks whether each desktop operation has corresponding trace evidence:
 ### 4a. Write an Anchor
 
 ```bash
-openwand anchor-write <session-id> --anchor-root /external/path [--sequence N]
+openwand anchor-write <session-id> --anchor-root /external/path [--db <path>] [--sequence N]
 ```
+
+> **v1.0.1 change:** The `--db` flag is now honored. Previously, the command
+> silently used `%APPDATA%/openwand/openwand.db`.
 
 ### What It Does
 
@@ -203,40 +191,11 @@ The anchor root must be:
 - Not containing the store root
 - An existing directory
 
-### Collision Protection
-
-Writing a checkpoint with a sequence number that already exists for that
-session is rejected.
-
 ### 4b. Verify an Anchor
 
 ```bash
-openwand anchor-verify <session-id> --anchor /path/to/anchor.json
+openwand anchor-verify <session-id> --anchor /path/to/anchor.json [--db <path>]
 ```
-
-### What It Does
-
-1. Reads the anchor file
-2. Recomputes the root hash from the trace store (entries up to
-   `last_global_sequence`)
-3. Compares against the anchor's stored `root_hash`
-4. Reports freshness status (Current / Stale)
-
-### Exit Codes
-
-| Code | Meaning |
-|------|---------|
-| 0 | Pass — anchor hash matches store hash |
-| 1 | Operational error |
-| 2 | Fail — hash mismatch (tampering detected) |
-| 3 | Missing — no anchor file found |
-| 4 | Unsupported |
-
-### Freshness
-
-- **Current**: store has no entries beyond `last_global_sequence`
-- **Stale**: store has additional entries (append-only growth). This is NOT
-  a failure — it means the anchor is simply outdated, not tampered.
 
 ### What It Proves
 
@@ -259,21 +218,12 @@ openwand anchor-verify <session-id> --anchor /path/to/anchor.json
 ### Command
 
 ```bash
-openwand evidence-report \
-  --session <session-id> \
+openwand evidence-report <session-id> \
   --operations <ops.json> \
   [--anchor /path/to/anchor.json] \
+  [--db <path>] \
   --output report.json
 ```
-
-### What It Does
-
-Aggregates all verification results into a single JSON report:
-1. **Trace verification** — chain + hash results
-2. **Operation replay** — correspondence results
-3. **Anchor verification** — if anchor file provided
-4. **Security scan summary** — sourced from `docs/SECURITY_SCAN_RESULTS.md`
-5. **Authority review summary** — sourced from `docs/AUTHORITY_REVIEW.md`
 
 ### Output Result Types
 
@@ -283,56 +233,43 @@ Aggregates all verification results into a single JSON report:
 | CompleteWithCaveats | Missing anchor, stale, inconclusive, or unavailable source |
 | Incomplete | Trace loading error or malformed operations |
 
-### What It Proves
+---
 
-- Aggregates existing evidence into a reviewer-readable format
-- Each source is honestly reported (missing sources → "unavailable", not faked)
+## 6. Guided Review (Single Command)
 
-### What It Does NOT Prove
+### Command
 
-- Creates no new assurance facts beyond what individual checks prove
-- Does not replace running individual verification commands
+```bash
+openwand review <session-id> \
+  --operations <ops.json> \
+  [--anchor /path/to/anchor.json] \
+  [--db <path>] \
+  --output review.json
+```
+
+Chains all verification steps into a single guided flow:
+1. Trace verification (chain + hash)
+2. Operation replay (correspondence)
+3. Anchor verification (if anchor provided)
+4. Evidence report aggregation
 
 ---
 
-## 6. Security Scan Evidence
+## 7. Security Scan Evidence
 
-### Source Document
-
-`docs/SECURITY_SCAN_RESULTS.md` (generated by `cargo audit` + production clippy)
-
-### Latest Results (Wave 105A)
+### Latest Results (v1.0.1, Wave 129A)
 
 | Check | Result |
 |-------|--------|
 | Dependencies scanned | 721 |
 | CVEs found | 0 |
-| Upstream-blocked warnings | 15 (13 GTK3 desktop-only, 1 atomic-polyfill via Loro, 1 rand 0.7 via wry) |
-| Production clippy | 0 warnings across 12 crates |
+| Production clippy | 0 warnings across 11 crates |
 | Authority boundary guards | All pass |
 | Production `unsafe` blocks | 1 (`libc::dup` in sandbox) |
 
-### What This Proves
-
-- No known vulnerabilities in dependencies at time of scan
-- Production code passes clippy with zero warnings
-- Authority boundaries are enforced at source level
-
-### What This Does NOT Prove
-
-- Absence of zero-day vulnerabilities
-- Formal security certification
-- Runtime memory safety (only source-level analysis)
-
 ---
 
-## 7. Authority Review
-
-### Source Document
-
-`docs/AUTHORITY_REVIEW.md`
-
-### Summary (Wave 105B)
+## 8. Authority Review
 
 12 authority surfaces identified:
 
@@ -353,69 +290,29 @@ Aggregates all verification results into a single JSON report:
 
 4 write-capable surfaces (S3, S5, S6, S10). 3 read-only verifiers (S8, S9, S11).
 
-### What This Proves
-
-- Clear separation between read-only verification and write-capable execution
-- No verifier has mutation authority over trace, memory, or approval records
-
-### What This Does NOT Prove
-
-- Absence of privilege escalation paths (not a formal penetration test)
-- Runtime enforcement (source-level analysis only)
-
----
-
-## 8. Linux GUI Partial Validation
-
-### Source Document
-
-`docs/LINUX_GUI_SMOKE_TEST.md`
-
-### Result: Partial
-
-| Check | Result |
-|-------|--------|
-| CLI binary compiles on Linux | ✅ Pass |
-| Desktop binary (`openwand-ui`) compiles on Linux | ✅ Pass (9 latent bugs fixed in Wave 109A) |
-| Desktop binary launches | ✅ Pass |
-| GTK/WebKit/Dioxus initializes | ✅ Pass |
-| Window created | ✅ Pass (xdotool confirmed) |
-| Direct rendering | ✅ Pass (glxinfo confirmed) |
-| Application stability | ✅ 6+ seconds, no crash |
-| Visual rendering | ❌ Not captured (WebKit compositing limitation in virtualized GPU) |
-| Interactive UI | ❌ Not tested |
-
-### What This Proves
-
-- The Linux desktop binary compiles and initializes correctly
-- The runtime stack (GTK + WebKit + Dioxus) is functional at the initialization level
-- Previous build gate gap (CLI-only, not desktop binary) is now closed
-
-### What This Does NOT Prove
-
-- Full Linux GUI support
-- Cross-platform runtime validation complete
-- Visual rendering correctness
-- Interactive UI behavior
-
 ---
 
 ## 9. Caveats and Non-Claims
 
-### OpenWand v1.0.0-rc.1 does NOT claim:
+### OpenWand v1.0.1 does NOT claim:
 
-1. **Production readiness** — this is a development release
-2. **Formal security certification** — no external audit has been performed
-3. **Physical immutability** — trace stores are technically mutable files
-4. **Remote attestation** — no hardware or network attestation mechanism
+1. **Production readiness**
+2. **Formal security certification**
+3. **Physical immutability** — trace stores are mutable files
+4. **Remote attestation** — no hardware/network attestation mechanism
 5. **Full immutability** — attacker who rewrites store + anchor passes verification
-6. **Cross-platform runtime validation** — Linux GUI is Partial, macOS not tested
+6. **Full cross-platform runtime validation** — Linux GUI is Partial, macOS not tested
 7. **Provider completeness** — only LM Studio and Z.AI validated
 8. **Stable API guarantee** — APIs may change between versions
 9. **Full Linux GUI support** — visual rendering not validated
-10. **Interactive UI validation on Linux** — not tested
+10. **External review** — no external reviewer has executed this packet
+11. **macOS validated** — not tested
+12. **Fully consistent tamper passes** — attacker can forge self-consistent state
+13. **Windows final-component TOCTOU** — residual timing window
+14. **openwand-content stub crate** — not a real implementation
+15. **Dependency warnings** — 15 transitive warnings (desktop-only paths)
 
-### OpenWand v1.0.0-rc.1 DOES claim:
+### OpenWand v1.0.1 DOES claim:
 
 1. **Trace chain + hash verification** — internally consistent under BLAKE3 recomputation
 2. **Operation-to-trace correspondence** — desktop operations have matching trace entries
@@ -425,52 +322,10 @@ Aggregates all verification results into a single JSON report:
 6. **Zero CVEs** — across 721 dependencies at time of scan
 7. **Linux desktop binary compilation** — both CLI and desktop binaries compile
 8. **Linux runtime initialization** — GTK/WebKit/Dioxus stack initializes without crash
-
----
-
-## 10. Quick Reviewer Checklist
-
-A reviewer can run these commands in sequence:
-
-```bash
-# 1. Build
-cargo build --release --bin openwand
-cargo build --release --bin openwand-ui --features desktop
-
-# 2. Create a test session
-./target/release/openwand --base-url http://localhost:1234/v1 "Hello"
-
-# 3. Verify trace integrity
-./target/release/openwand trace-verify <session-id>
-# Expected: exit 0, Result: Pass
-
-# 4. Write an external anchor
-./target/release/openwand anchor-write <session-id> --anchor-root /tmp/anchors
-
-# 5. Verify the anchor
-./target/release/openwand anchor-verify <session-id> --anchor /tmp/anchors/<session-id>_*.json
-# Expected: exit 0, Pass, Current
-
-# 6. Create operations file (if desktop operations were performed)
-echo '{"operations":[]}' > ops.json
-
-# 7. Run operation replay
-./target/release/openwand operation-replay --session <session-id> --operations ops.json
-
-# 8. Generate evidence report
-./target/release/openwand evidence-report \
-  --session <session-id> \
-  --operations ops.json \
-  --anchor /tmp/anchors/<session-id>_*.json \
-  --output review_report.json
-# Expected: CompleteWithCaveats (or Complete if all sources available)
-
-# 9. Review authority surfaces
-cat docs/AUTHORITY_REVIEW.md
-
-# 10. Review scan results
-cat docs/SECURITY_SCAN_RESULTS.md
-```
+9. **CLI and desktop artifact identity** — SHA-256 recorded and verifiable
+10. **4,430 tests pass** — full workspace test suite, 0 failures
+11. **First real workflow evidence** — VL-1 passes post-fix (agent turn → trace verify → evidence report)
+12. **Maintenance patch discipline** — v1.0.1 fixes found bugs with regression tests
 
 ---
 
@@ -486,4 +341,56 @@ v0.7  external assurance                    Externally Anchor
 v0.8  operational hardening                 Operationally Harden
 v0.9  external validation                   Externally Validate
 v1.0  release-candidate closure             Close
+```
+
+---
+
+## 12. Quick Reviewer Checklist
+
+```bash
+# 1. Build
+cargo build --release --bin openwand
+cargo build --release --bin openwand-ui --features desktop
+
+# 2. Verify version
+./target/release/openwand --version
+# Expected: openwand 1.0.1
+
+# 3. Create a test session
+./target/release/openwand --base-url http://localhost:1234/v1 "Hello"
+
+# 4. Verify trace integrity (with --db flag, v1.0.1)
+./target/release/openwand trace-verify <session-id> --db openwand.db
+# Expected: exit 0, Result: Pass
+
+# 5. Write an external anchor
+./target/release/openwand anchor-write <session-id> --db openwand.db --anchor-root /tmp/anchors
+
+# 6. Verify the anchor
+./target/release/openwand anchor-verify <session-id> --db openwand.db --anchor /tmp/anchors/openwand-checkpoint-1.json
+# Expected: exit 0, Pass, Current
+
+# 7. Run operation replay
+echo '{"operations":[]}' > ops.json
+./target/release/openwand operation-replay --session <session-id> --db openwand.db --operations ops.json
+
+# 8. Generate evidence report
+./target/release/openwand evidence-report <session-id> \
+  --db openwand.db \
+  --operations ops.json \
+  --anchor /tmp/anchors/openwand-checkpoint-1.json \
+  --output review_report.json
+# Expected: Complete
+
+# 9. Run guided review (chains all steps)
+./target/release/openwand review <session-id> \
+  --db openwand.db \
+  --operations ops.json \
+  --anchor /tmp/anchors/openwand-checkpoint-1.json \
+  --output guided_review.json
+# Expected: Complete
+
+# 10. Review authority surfaces and scan results
+cat docs/AUTHORITY_REVIEW.md
+cat docs/SECURITY_SCAN_RESULTS.md
 ```

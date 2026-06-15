@@ -76,7 +76,8 @@ Baseline for rc.1: 4,232 total
 | 127A | First Real Workflow Evidence | `wave-127a-lock` | docs/VL1_FIRST_WORKFLOW_EVIDENCE.md |
 | 128A | Trace Verification Fix + Patch Criteria | `wave-128a-lock` | docs/VL3_MAINTENANCE_PATCH_CRITERIA.md |
 | 129A | v1.0.1 Patch Preparation | `wave-129a-lock` | RELEASE_NOTES_v101_PATCH.md |
-| 129B | v1.0.1 Patch Declaration | (this wave) | docs/V101_PATCH_DECLARATION.md |
+| 129B | v1.0.1 Patch Declaration | `wave-129b-lock` | docs/V101_PATCH_DECLARATION.md |
+| 130A | External Review Reclassification | (this wave) | docs/VL2_EXTERNAL_REVIEW_RECLASSIFICATION.md |
 
 ## Post-v1.0 VL Blocker Plan
 

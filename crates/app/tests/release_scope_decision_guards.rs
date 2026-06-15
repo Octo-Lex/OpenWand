@@ -103,12 +103,12 @@ mod release_scope_decision_guards {
     // ---- External review packet refreshed ----
 
     #[test]
-    fn external_review_packet_refreshed_to_v090() {
+    fn external_review_packet_refreshed_to_current() {
         let content = read_docs_doc("EXTERNAL_REVIEW_PACKET.md");
-        // Updated from v0.9.0 to v1.0.0-rc.1 in Wave 124A re-audit
+        // Must reference a v1.0.x version (updated through patch cycle)
         assert!(
-            content.contains("v1.0.0-rc.1"),
-            "External review packet should reference v1.0.0-rc.1 (updated in 124A)"
+            content.contains("v1.0."),
+            "External review packet should reference a v1.0.x version"
         );
     }
 

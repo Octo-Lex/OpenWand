@@ -114,8 +114,8 @@ fn reaudit_reviews_vk1_classification() {
 fn external_review_packet_version_updated() {
     let doc = read_docs_doc("EXTERNAL_REVIEW_PACKET.md");
     assert!(
-        doc.contains("v1.0.0-rc.1"),
-        "EXTERNAL_REVIEW_PACKET must reference v1.0.0-rc.1"
+        doc.contains("v1.0."),
+        "EXTERNAL_REVIEW_PACKET must reference a v1.0.x version"
     );
     assert!(
         !doc.contains("**Version:** v0.9.0"),
