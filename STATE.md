@@ -1,12 +1,12 @@
 # OpenWand — Project State
 
 ## Version
-1.0.0 (stable) — v1.0.0 final preparation complete (Wave 125A)
+1.0.0 (stable) — **RELEASED**
 
 ## Status
-**v1.0.0 final prepared (Wave 125A). Awaiting declaration (Wave 125B).**
+**v1.0.0 RELEASED. Stable release. All VK blockers resolved.**
 
-Release: v1.0.0 — tag `v1.0.0` (pending declaration, Wave 125B)
+Release: v1.0.0 — tag `v1.0.0`
 Release candidate: v1.0.0-rc.1 — tag `v1.0.0-rc.1`
 
 Binary: 17,705,472 bytes (~16.9 MB), SHA-256 `AE2DBB1B5D37D4F1833998A5047256CB47BB1D9F0C3CACB493D19C148BC7EA46`
@@ -62,7 +62,8 @@ Baseline for rc.1: 4,232 total
 | 122A | rc.1 Soak / Regression Window | `wave-122a-lock` | docs/RC1_SOAK_REPORT.md |
 | 123A | External Review Classification | `wave-123a-lock` | docs/VK1_EXTERNAL_REVIEW_CLASSIFICATION.md |
 | 124A | Final Claim Re-audit | `wave-124a-lock` | docs/VK3_FINAL_CLAIM_REAUDIT.md |
-| 125A | v1.0.0 Final Preparation | (this wave) | RELEASE_NOTES_v100_STABLE.md |
+| 125A | v1.0.0 Final Preparation | `wave-125a-lock` | RELEASE_NOTES_v100_STABLE.md |
+| 125B | v1.0.0 Final Declaration | (this wave) | docs/V100_FINAL_DECLARATION.md |
 
 ## v1.0.0 Final Blocker Plan
 
@@ -72,7 +73,7 @@ Baseline for rc.1: 4,232 total
 | VK-2: rc.1 soak / regression window | Run release-check, clean install, CLI sanity; classify bugs | P0 (gate) |
 | VK-3: Final v1.0 claim audit | ✅ Resolved — zero overclaiming, 21 claims, 15 caveats (124A) | P1 ✅ |
 | VK-4: Final v1.0 release preparation | ✅ Resolved — release notes, artifacts, identity ready (125A) | P1 ✅ |
-| VK-5: v1.0.0 final declaration | ⬜ Pending (Wave 125B) | P1 ⬜ |
+| VK-5: v1.0.0 final declaration | ✅ Resolved — v1.0.0 declared and tagged (125B) | P1 ✅ |
 
 ## v1.0.0 Release-Candidate Closure Arc
 
