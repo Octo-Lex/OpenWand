@@ -282,11 +282,11 @@ fn state_md_shows_vk5_resolved() {
 // ── Cargo.toml ──────────────────────────────────────────────────────────────
 
 #[test]
-fn cargo_toml_version_is_100() {
+fn cargo_toml_version_at_least_100() {
     let doc = read_root_doc("Cargo.toml");
     assert!(
-        doc.contains("version = \"1.0.0\""),
-        "Cargo.toml must have version = \"1.0.0\""
+        doc.contains("version = \"1.0.0\"") || doc.contains("version = \"1.0.1\""),
+        "Cargo.toml must have version 1.0.0 or later"
     );
 }
 

@@ -1,15 +1,18 @@
 # OpenWand — Project State
 
 ## Version
-1.0.0 (stable) — **RELEASED**
+1.0.1 (stable) — v1.0.1 patch prepared (Wave 129A)
+v1.0.0 (stable) — **RELEASED** (Wave 125B)
 
 ## Status
-**v1.0.0 RELEASED. Stable release. All VK blockers resolved.**
+**v1.0.1 patch prepared (Wave 129A). v1.0.0 released. Post-v1.0 stabilization in progress.**
 
+Patch: v1.0.1 — tag `v1.0.1` (pending declaration)
 Release: v1.0.0 — tag `v1.0.0`
 Release candidate: v1.0.0-rc.1 — tag `v1.0.0-rc.1`
 
-Binary: 17,705,472 bytes (~16.9 MB), SHA-256 `AE2DBB1B5D37D4F1833998A5047256CB47BB1D9F0C3CACB493D19C148BC7EA46`
+Patch binary: 17,700,352 bytes (~16.9 MB), SHA-256 `5ED051CAFF4534F372B6ABF10D1263422F3CE1357814A121DF4822848857ECF5`
+v1.0.0 binary: 17,705,472 bytes (~16.9 MB), SHA-256 `AE2DBB1B5D37D4F1833998A5047256CB47BB1D9F0C3CACB493D19C148BC7EA46`
 
 Release candidate for v1.0.0. Not production-ready. Not formal certification.
 No physical immutability. No remote attestation. No stable API guarantee.
@@ -71,7 +74,8 @@ Baseline for rc.1: 4,232 total
 |------|-------|-----|-------------|
 | 126A | Post-v1.0 Stabilization Roadmap | `wave-126a-lock` | docs/V100_POST_STABILIZATION_ROADMAP.md |
 | 127A | First Real Workflow Evidence | `wave-127a-lock` | docs/VL1_FIRST_WORKFLOW_EVIDENCE.md |
-| 128A | Trace Verification Fix + Patch Criteria | (this wave) | docs/VL3_MAINTENANCE_PATCH_CRITERIA.md |
+| 128A | Trace Verification Fix + Patch Criteria | `wave-128a-lock` | docs/VL3_MAINTENANCE_PATCH_CRITERIA.md |
+| 129A | v1.0.1 Patch Preparation | (this wave) | RELEASE_NOTES_v101_PATCH.md |
 
 ## Post-v1.0 VL Blocker Plan
 
