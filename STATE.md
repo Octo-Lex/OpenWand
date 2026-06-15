@@ -63,7 +63,24 @@ Baseline for rc.1: 4,232 total
 | 123A | External Review Classification | `wave-123a-lock` | docs/VK1_EXTERNAL_REVIEW_CLASSIFICATION.md |
 | 124A | Final Claim Re-audit | `wave-124a-lock` | docs/VK3_FINAL_CLAIM_REAUDIT.md |
 | 125A | v1.0.0 Final Preparation | `wave-125a-lock` | RELEASE_NOTES_v100_STABLE.md |
-| 125B | v1.0.0 Final Declaration | (this wave) | docs/V100_FINAL_DECLARATION.md |
+| 125B | v1.0.0 Final Declaration | `v1.0.0` / `wave-125b-lock` | docs/V100_FINAL_DECLARATION.md |
+
+## Post-v1.0 Stabilization Arc
+
+| Wave | Title | Tag | Deliverable |
+|------|-------|-----|-------------|
+| 126A | Post-v1.0 Stabilization Roadmap | (this wave) | docs/V100_POST_STABILIZATION_ROADMAP.md |
+
+## Post-v1.0 VL Blocker Plan
+
+| Blocker | Description | Priority |
+|---------|-------------|----------|
+| VL-1: User adoption / first real workflow | Record evidence of first external user workflow | P0 (gate) |
+| VL-2: External review execution | Independent reviewer runs the review packet | P1 |
+| VL-3: v1.0.1 maintenance patch criteria | Define patch release policy | P1 |
+| VL-4: Provider expansion decision | Validate additional providers | P2 |
+| VL-5: Linux GUI visual validation | Physical/cloud Linux visual test | P2 |
+| VL-6: API stability policy | Define API tiers and stabilization roadmap | P2 |
 
 ## v1.0.0 Final Blocker Plan
 
