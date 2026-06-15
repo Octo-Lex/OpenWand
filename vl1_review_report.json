@@ -1,0 +1,43 @@
+{
+  "session_id": "01KV4B48CESEJDPAF22WAVFHRP",
+  "generated_at": "2026-06-15T00:34:21.992860+00:00",
+  "result": "CompleteWithCaveats",
+  "trace_verification": {
+    "result": "Fail",
+    "entries_checked": 3,
+    "streams_checked": 1,
+    "error_findings": 3,
+    "warning_findings": 0
+  },
+  "operation_replay": {
+    "status": "verified",
+    "result": "Pass",
+    "operations_checked": 0,
+    "findings_count": 0
+  },
+  "anchor_verification": {
+    "result": "Pass",
+    "freshness": "Current",
+    "detail": "Anchor root hash matches. Trace is at checkpoint state."
+  },
+  "security_scan": {
+    "source": "docs/SECURITY_SCAN_RESULTS.md",
+    "recorded_at_wave": "Wave 105A",
+    "vulnerabilities": 0,
+    "warnings": 0,
+    "status": "available"
+  },
+  "authority_review": {
+    "source": "docs/AUTHORITY_REVIEW.md",
+    "surfaces_documented": 12,
+    "write_capable_surfaces": 4,
+    "read_only_verifiers": null,
+    "status": "available"
+  },
+  "caveats": [
+    "This report aggregates existing evidence. It does not constitute a formal security review.",
+    "Trace verification checks chain continuity, ordering, and hash correctness under Blake3HashPolicy. It does not prove physical immutability.",
+    "An attacker who can rewrite the trace store AND recompute all hashes can produce a self-consistent trace. Full immutability requires an external trust anchor.",
+    "Not production-ready. Not a stable API guarantee."
+  ]
+}

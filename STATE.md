@@ -69,15 +69,16 @@ Baseline for rc.1: 4,232 total
 
 | Wave | Title | Tag | Deliverable |
 |------|-------|-----|-------------|
-| 126A | Post-v1.0 Stabilization Roadmap | (this wave) | docs/V100_POST_STABILIZATION_ROADMAP.md |
+| 126A | Post-v1.0 Stabilization Roadmap | `wave-126a-lock` | docs/V100_POST_STABILIZATION_ROADMAP.md |
+| 127A | First Real Workflow Evidence | (this wave) | docs/VL1_FIRST_WORKFLOW_EVIDENCE.md |
 
 ## Post-v1.0 VL Blocker Plan
 
 | Blocker | Description | Priority |
 |---------|-------------|----------|
-| VL-1: User adoption / first real workflow | Record evidence of first external user workflow | P0 (gate) |
+| VL-1: User adoption / first real workflow | ⚠️ PARTIAL — F-VL1-1 blocking (hash verify fails) | P0 (gate) |
 | VL-2: External review execution | Independent reviewer runs the review packet | P1 |
-| VL-3: v1.0.1 maintenance patch criteria | Define patch release policy | P1 |
+| VL-3: v1.0.1 maintenance patch criteria | Now URGENT — F-VL1-1 needs patch | P1 |
 | VL-4: Provider expansion decision | Validate additional providers | P2 |
 | VL-5: Linux GUI visual validation | Physical/cloud Linux visual test | P2 |
 | VL-6: API stability policy | Define API tiers and stabilization roadmap | P2 |

@@ -1,0 +1,58 @@
+{
+  "generated_at": "2026-06-15T00:35:23.436133100+00:00",
+  "overall": "Ready",
+  "checks": [
+    {
+      "name": "Workspace Tests",
+      "status": "Pass",
+      "detail": "4371 tests passed"
+    },
+    {
+      "name": "Production Clippy",
+      "status": "Pass",
+      "detail": "0 warnings on 11 production crates"
+    },
+    {
+      "name": "Cargo Audit",
+      "status": "Pass",
+      "detail": "0 CVEs found"
+    },
+    {
+      "name": "CLI Binary Build",
+      "status": "Pass",
+      "detail": "openwand builds with desktop features"
+    },
+    {
+      "name": "Desktop Binary Build",
+      "status": "Pass",
+      "detail": "openwand-ui builds (109A gate)"
+    },
+    {
+      "name": "Artifact Identity",
+      "status": "Pass",
+      "detail": "17705472 bytes, BLAKE3: 91FF7E5B8E4DCE33253AEA41F5AA14834834E6CB97C90CB14053F8A71CF6A7A3"
+    },
+    {
+      "name": "Documentation Presence",
+      "status": "Pass",
+      "detail": "5 key documents present"
+    },
+    {
+      "name": "STATE.md Consistency",
+      "status": "Pass",
+      "detail": "Version, tests, SHA-256 present"
+    }
+  ],
+  "manual_items": [
+    "GitHub release publication (manual)",
+    "External reviewer execution (manual)",
+    "Native Linux GUI full visual validation (manual)",
+    "Caveat/non-claim human review (manual)"
+  ],
+  "non_claims": [
+    "Not production-ready",
+    "Not formal security certification",
+    "Not physical immutability",
+    "Not stable API guarantee"
+  ]
+}
