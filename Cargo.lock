@@ -3958,7 +3958,7 @@ dependencies = [
 
 [[package]]
 name = "openwand-app"
-version = "1.0.0-rc.1"
+version = "1.0.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3994,7 +3994,7 @@ dependencies = [
 
 [[package]]
 name = "openwand-core"
-version = "1.0.0-rc.1"
+version = "1.0.0"
 dependencies = [
  "chrono",
  "serde",
@@ -4014,7 +4014,7 @@ dependencies = [
 
 [[package]]
 name = "openwand-goals"
-version = "1.0.0-rc.1"
+version = "1.0.0"
 dependencies = [
  "serde",
  "serde_json",
@@ -4025,7 +4025,7 @@ dependencies = [
 
 [[package]]
 name = "openwand-llm"
-version = "1.0.0-rc.1"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "chrono",
@@ -4042,7 +4042,7 @@ dependencies = [
 
 [[package]]
 name = "openwand-mcp-pool"
-version = "1.0.0-rc.1"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "chrono",
@@ -4061,7 +4061,7 @@ dependencies = [
 
 [[package]]
 name = "openwand-memory"
-version = "1.0.0-rc.1"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "blake3",
@@ -4078,7 +4078,7 @@ dependencies = [
 
 [[package]]
 name = "openwand-policy"
-version = "1.0.0-rc.1"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "openwand-core",
@@ -4091,7 +4091,7 @@ dependencies = [
 
 [[package]]
 name = "openwand-session"
-version = "1.0.0-rc.1"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "cargo_metadata",
@@ -4118,7 +4118,7 @@ dependencies = [
 
 [[package]]
 name = "openwand-skills"
-version = "1.0.0-rc.1"
+version = "1.0.0"
 dependencies = [
  "serde",
  "serde_json",
@@ -4129,7 +4129,7 @@ dependencies = [
 
 [[package]]
 name = "openwand-store"
-version = "1.0.0-rc.1"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "blake3",
@@ -4149,7 +4149,7 @@ dependencies = [
 
 [[package]]
 name = "openwand-tools"
-version = "1.0.0-rc.1"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "blake3",
@@ -4171,7 +4171,7 @@ dependencies = [
 
 [[package]]
 name = "openwand-trace"
-version = "1.0.0-rc.1"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "blake3",

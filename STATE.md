@@ -1,18 +1,20 @@
 # OpenWand — Project State
 
 ## Version
-1.0.0-rc.1 (release candidate) — planning v1.0.0 final
+1.0.0 (stable) — v1.0.0 final preparation complete (Wave 125A)
 
 ## Status
-**v1.0.0-rc.1 released. v1.0.0 final in progress. Wave 124A (final claim re-audit) locked.**
+**v1.0.0 final prepared (Wave 125A). Awaiting declaration (Wave 125B).**
 
-Release: v1.0.0-rc.1 — tag `v1.0.0-rc.1`
+Release: v1.0.0 — tag `v1.0.0` (pending declaration, Wave 125B)
+Release candidate: v1.0.0-rc.1 — tag `v1.0.0-rc.1`
 
-Binary: 17,704,960 bytes (~16.9 MB), SHA-256 `0603647A00A92B126FE8417099D3422130224262DB6C86DC94CCFD699915F685`
+Binary: 17,705,472 bytes (~16.9 MB), SHA-256 `AE2DBB1B5D37D4F1833998A5047256CB47BB1D9F0C3CACB493D19C148BC7EA46`
 
 Release candidate for v1.0.0. Not production-ready. Not formal certification.
 No physical immutability. No remote attestation. No stable API guarantee.
 No full Linux GUI support. No provider completeness. External review consciously deferred (VK-1).
+Not production-ready. Not formal certification. Not stable API. Not physical immutability. Not remote attestation.
 
 ## Workspace Structure
 ```
@@ -59,7 +61,8 @@ Baseline for rc.1: 4,232 total
 | 121A | Post-rc.1 Roadmap Reset | `wave-121a-lock` | v1.0.0 final roadmap (VK-1 through VK-5) |
 | 122A | rc.1 Soak / Regression Window | `wave-122a-lock` | docs/RC1_SOAK_REPORT.md |
 | 123A | External Review Classification | `wave-123a-lock` | docs/VK1_EXTERNAL_REVIEW_CLASSIFICATION.md |
-| 124A | Final Claim Re-audit | (this wave) | docs/VK3_FINAL_CLAIM_REAUDIT.md |
+| 124A | Final Claim Re-audit | `wave-124a-lock` | docs/VK3_FINAL_CLAIM_REAUDIT.md |
+| 125A | v1.0.0 Final Preparation | (this wave) | RELEASE_NOTES_v100_STABLE.md |
 
 ## v1.0.0 Final Blocker Plan
 
@@ -68,8 +71,8 @@ Baseline for rc.1: 4,232 total
 | VK-1: External review execution | ✅ Classified — consciously deferred (123A) | P0 (gate) ✅ |
 | VK-2: rc.1 soak / regression window | Run release-check, clean install, CLI sanity; classify bugs | P0 (gate) |
 | VK-3: Final v1.0 claim audit | ✅ Resolved — zero overclaiming, 21 claims, 15 caveats (124A) | P1 ✅ |
-| VK-4: Final v1.0 release preparation | Artifact, notes, caveats | P1 |
-| VK-5: v1.0.0 final declaration | Tag v1.0.0 with explicit caveats | P1 |
+| VK-4: Final v1.0 release preparation | ✅ Resolved — release notes, artifacts, identity ready (125A) | P1 ✅ |
+| VK-5: v1.0.0 final declaration | ⬜ Pending (Wave 125B) | P1 ⬜ |
 
 ## v1.0.0 Release-Candidate Closure Arc
 

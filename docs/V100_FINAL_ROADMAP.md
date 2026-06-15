@@ -46,7 +46,7 @@ v1.0  final release                         Close (stable)
 | VK-1 | External review execution | P0 (gate) ✅ Classified |
 | VK-2 | rc.1 soak / regression window | P0 (gate) |
 | VK-3 | Final v1.0 claim audit | P1 ✅ Resolved |
-| VK-4 | Final v1.0 release preparation | P1 |
+| VK-4 | Final v1.0 release preparation | P1 ✅ Resolved |
 | VK-5 | v1.0.0 final declaration | P1 |
 
 ---
