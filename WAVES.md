@@ -409,4 +409,5 @@ Some waves collapse commits (e.g., commits 2+3 combined) when scope is smaller.
 | 126A | Post-v1.0 Stabilization Roadmap | `wave-126a-lock` | 4,371 | docs/V100_POST_STABILIZATION_ROADMAP.md |
 | 127A | First Real Workflow Evidence | `wave-127a-lock` | 4,389 | docs/VL1_FIRST_WORKFLOW_EVIDENCE.md |
 | 128A | Trace Verification Fix + Patch Criteria | `wave-128a-lock` | 4,404 | docs/VL3_MAINTENANCE_PATCH_CRITERIA.md |
-| 129A | v1.0.1 Patch Preparation | (pending) | 4,404 | RELEASE_NOTES_v101_PATCH.md |
+| 129A | v1.0.1 Patch Preparation | `wave-129a-lock` | 4,416 | RELEASE_NOTES_v101_PATCH.md |
+| 129B | v1.0.1 Patch Declaration | (pending) | 4,428 | docs/V101_PATCH_DECLARATION.md |

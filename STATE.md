@@ -1,13 +1,13 @@
 # OpenWand — Project State
 
 ## Version
-1.0.1 (stable) — v1.0.1 patch prepared (Wave 129A)
+1.0.1 (stable) — **RELEASED** (Wave 129B)
 v1.0.0 (stable) — **RELEASED** (Wave 125B)
 
 ## Status
-**v1.0.1 patch prepared (Wave 129A). v1.0.0 released. Post-v1.0 stabilization in progress.**
+**v1.0.1 RELEASED. Maintenance patch. Post-v1.0 stabilization in progress.**
 
-Patch: v1.0.1 — tag `v1.0.1` (pending declaration)
+Patch: v1.0.1 — tag `v1.0.1`
 Release: v1.0.0 — tag `v1.0.0`
 Release candidate: v1.0.0-rc.1 — tag `v1.0.0-rc.1`
 
@@ -75,7 +75,8 @@ Baseline for rc.1: 4,232 total
 | 126A | Post-v1.0 Stabilization Roadmap | `wave-126a-lock` | docs/V100_POST_STABILIZATION_ROADMAP.md |
 | 127A | First Real Workflow Evidence | `wave-127a-lock` | docs/VL1_FIRST_WORKFLOW_EVIDENCE.md |
 | 128A | Trace Verification Fix + Patch Criteria | `wave-128a-lock` | docs/VL3_MAINTENANCE_PATCH_CRITERIA.md |
-| 129A | v1.0.1 Patch Preparation | (this wave) | RELEASE_NOTES_v101_PATCH.md |
+| 129A | v1.0.1 Patch Preparation | `wave-129a-lock` | RELEASE_NOTES_v101_PATCH.md |
+| 129B | v1.0.1 Patch Declaration | (this wave) | docs/V101_PATCH_DECLARATION.md |
 
 ## Post-v1.0 VL Blocker Plan
 
