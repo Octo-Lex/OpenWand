@@ -309,9 +309,11 @@ mod hash_policy_cli_tests {
     }
 
     fn make_hashed_entry(global_seq: u64, stream_id: &str, stream_seq: u64, prev_hash: Option<&EntryHash>) -> TraceEntry<TestEvent> {
+        // Must use serde_json::to_string for scope to match the verifier path
+        let scope_str = serde_json::to_string(&TraceStreamScope::Session).unwrap();
         let event_json = serde_json::to_string(&TestEvent("test".into())).unwrap();
         let hash = Blake3HashPolicy::compute_hash(
-            global_seq, "Session", stream_id, stream_seq, "test.event", &event_json, prev_hash,
+            global_seq, &scope_str, stream_id, stream_seq, "test.event", &event_json, prev_hash,
         );
         TraceEntry {
             id: TraceId::new(),

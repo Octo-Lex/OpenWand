@@ -1386,16 +1386,32 @@ const TRACE_VERIFY_EXIT_FAIL: i32 = 2;
 const TRACE_VERIFY_EXIT_INCONCLUSIVE: i32 = 3;
 const TRACE_VERIFY_EXIT_UNSUPPORTED: i32 = 4;
 
-async fn cmd_trace_verify(_cli: &Cli, session_id: &str) -> Result<()> {
+/// Resolve the database path: honor explicit --db, fall back to data dir, then CWD.
+fn resolve_db_path(cli_db: &str) -> std::path::PathBuf {
+    // If --db was explicitly set (non-default), use it
+    if cli_db != "openwand.db" {
+        return std::path::PathBuf::from(cli_db);
+    }
+    // Default: check data dir first, then CWD
+    let data_dir_path = dirs::data_dir()
+        .map(|d| d.join("openwand").join("openwand.db"));
+    if let Some(ref ddp) = data_dir_path {
+        if ddp.exists() {
+            return ddp.clone();
+        }
+    }
+    // Fall back to CWD
+    std::path::PathBuf::from("openwand.db")
+}
+
+async fn cmd_trace_verify(cli: &Cli, session_id: &str) -> Result<()> {
     use openwand_store::backends::sqlite::store::{SqliteStore, SqliteStoreConfig};
     use openwand_trace::{TraceStore, TraceQuery, TraceStreamId, TraceStreamScope};
     use openwand_trace::verifier::{TraceVerifier, VerificationResult, Blake3HashPolicy, HashVerificationPolicy};
     use openwand_store::StoredEvent;
 
-    // Determine DB path
-    let db_path = dirs::data_dir()
-        .map(|d| d.join("openwand").join("openwand.db"))
-        .unwrap_or_else(|| std::path::PathBuf::from("openwand.db"));
+    // Determine DB path — honor explicit --db flag
+    let db_path = resolve_db_path(&cli.db);
 
     if !db_path.exists() {
         eprintln!("error: trace database not found at {}", db_path.display());
@@ -1519,7 +1535,7 @@ const OP_REPLAY_EXIT_FAIL: i32 = 2;
 const OP_REPLAY_EXIT_INCONCLUSIVE: i32 = 3;
 const OP_REPLAY_EXIT_UNSUPPORTED: i32 = 4;
 
-async fn cmd_operation_replay(_cli: &Cli, session_id: &str, operations_file: &str) -> Result<()> {
+async fn cmd_operation_replay(cli: &Cli, session_id: &str, operations_file: &str) -> Result<()> {
     use openwand_store::backends::sqlite::store::{SqliteStore, SqliteStoreConfig};
     use openwand_trace::{TraceStore, TraceQuery, TraceStreamId, TraceStreamScope};
     use openwand_app::operation_replay::{DesktopOperation, OperationReplayVerifier, ReplayResult};
@@ -1545,7 +1561,7 @@ async fn cmd_operation_replay(_cli: &Cli, session_id: &str, operations_file: &st
         OpDesc::ApprovalResolution { approval_request_id, tool_call_id } => DesktopOperation::ApprovalResolution { approval_request_id, tool_call_id },
         OpDesc::EvidenceExport { workflow_execution_id, artifact_path, artifact_hash } => DesktopOperation::EvidenceExport { workflow_execution_id, artifact_path, artifact_hash },
     }).collect();
-    let db_path = dirs::data_dir().map(|d| d.join("openwand").join("openwand.db")).unwrap_or_else(|| std::path::PathBuf::from("openwand.db"));
+    let db_path = resolve_db_path(&cli.db);
     if !db_path.exists() { eprintln!("error: trace DB not found"); std::process::exit(1); }
     let store = match SqliteStore::open(SqliteStoreConfig::file(&db_path)).await { Ok(s) => s, Err(e) => { eprintln!("error: {e}"); std::process::exit(1); } };
     let stream_id = TraceStreamId { scope: TraceStreamScope::Session, id: session_id.to_string() };
@@ -1588,7 +1604,7 @@ const ANCHOR_EXIT_UNSUPPORTED: i32 = 4;
 const ANCHOR_EXIT_OPERATIONAL: i32 = 1;
 
 async fn cmd_anchor_write(
-    _cli: &Cli,
+    cli: &Cli,
     session_id: &str,
     anchor_root: &str,
     sequence: Option<u64>,
@@ -1598,9 +1614,7 @@ async fn cmd_anchor_write(
     use openwand_trace::anchor::{CheckpointWriter, AnchorError};
 
     // Determine DB path
-    let db_path = dirs::data_dir()
-        .map(|d| d.join("openwand").join("openwand.db"))
-        .unwrap_or_else(|| std::path::PathBuf::from("openwand.db"));
+    let db_path = resolve_db_path(&cli.db);
 
     if !db_path.exists() {
         eprintln!("error: trace database not found at {}", db_path.display());
@@ -1649,7 +1663,9 @@ async fn cmd_anchor_write(
     }
 
     // Determine store root (parent directory of DB)
-    let store_root = db_path.parent().unwrap_or(std::path::Path::new("."));
+    // Canonicalize db path first so parent() works with relative paths
+    let db_canon = db_path.canonicalize().unwrap_or_else(|_| db_path.clone());
+    let store_root = db_canon.parent().unwrap_or(std::path::Path::new("."));
 
     // Ensure anchor root exists
     let anchor_root_path = std::path::PathBuf::from(anchor_root);
@@ -1718,7 +1734,7 @@ async fn cmd_anchor_write(
 }
 
 async fn cmd_anchor_verify(
-    _cli: &Cli,
+    cli: &Cli,
     session_id: &str,
     anchor_path: &str,
 ) -> Result<()> {
@@ -1730,9 +1746,7 @@ async fn cmd_anchor_verify(
     };
 
     // Determine DB path
-    let db_path = dirs::data_dir()
-        .map(|d| d.join("openwand").join("openwand.db"))
-        .unwrap_or_else(|| std::path::PathBuf::from("openwand.db"));
+    let db_path = resolve_db_path(&cli.db);
 
     if !db_path.exists() {
         eprintln!("error: trace database not found at {}", db_path.display());
@@ -1837,7 +1851,7 @@ async fn cmd_anchor_verify(
 /// - Execute tools, approve actions, or change policy
 /// - Claim assurance beyond what the evidence proves
 async fn cmd_guided_review(
-    _cli: &Cli,
+    cli: &Cli,
     session_id: &str,
     operations_file: &str,
     anchor_path: Option<&str>,
@@ -1922,9 +1936,7 @@ async fn cmd_guided_review(
 
     // ── Step 1: Load trace store ──
     println!("Step 1: Loading trace store");
-    let db_path = dirs::data_dir()
-        .map(|d| d.join("openwand").join("openwand.db"))
-        .unwrap_or_else(|| std::path::PathBuf::from("openwand.db"));
+    let db_path = resolve_db_path(&cli.db);
     if !db_path.exists() {
         eprintln!("\nERROR: Trace database not found at {}", db_path.display());
         std::process::exit(1);
@@ -2133,7 +2145,7 @@ async fn cmd_guided_review(
 }
 
 async fn cmd_evidence_report(
-    _cli: &Cli,
+    cli: &Cli,
     session_id: &str,
     operations_file: &str,
     anchor_path: Option<&str>,
@@ -2163,9 +2175,7 @@ async fn cmd_evidence_report(
     }
 
     // ── Load trace entries ──
-    let db_path = dirs::data_dir()
-        .map(|d| d.join("openwand").join("openwand.db"))
-        .unwrap_or_else(|| std::path::PathBuf::from("openwand.db"));
+    let db_path = resolve_db_path(&cli.db);
 
     if !db_path.exists() {
         eprintln!("error: trace database not found at {}", db_path.display());

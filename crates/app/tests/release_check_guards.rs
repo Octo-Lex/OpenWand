@@ -13,8 +13,9 @@ mod release_check_guards {
     fn release_check_body(content: &str) -> &str {
         let start = content.find("async fn cmd_release_check").unwrap();
         let search_area = &content[start..];
-        let marker = "\n\nfn cmd_eval_task_plan";
-        let end_rel = search_area.find(marker).unwrap_or(5000);
+        // Handle both LF and CRLF line endings for the marker
+        let marker = "fn cmd_eval_task_plan";
+        let end_rel = search_area.find(marker).unwrap_or(10000);
         &search_area[..end_rel]
     }
 

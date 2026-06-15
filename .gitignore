@@ -4,3 +4,4 @@ tests/vl1_mock_llm.py
 vl1_mock_server.log
 vl1_workflow.db
 openwand.db
+vl1_fix_test.db

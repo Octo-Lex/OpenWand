@@ -446,9 +446,13 @@ impl TraceVerifier {
             };
 
             // Recompute hash
+            // Use serde_json::to_string to match the writer's serialization
+            // (writer.rs line 247: serde_json::to_string(&command.stream_id.scope))
+            let scope_str = serde_json::to_string(&entry.stream_id.scope)
+                .unwrap_or_else(|_| format!("{:?}", entry.stream_id.scope));
             let recomputed = policy.compute_entry_hash(
                 entry.global_sequence,
-                &format!("{:?}", entry.stream_id.scope),
+                &scope_str,
                 &entry.stream_id.id,
                 entry.stream_sequence,
                 &entry.event_kind,
@@ -766,11 +770,12 @@ mod tests {
         stream_seq: u64,
         prev_hash: Option<&EntryHash>,
     ) -> TraceEntry<TestEvent> {
-        let scope_str = "Session";
+        // Must use serde_json::to_string for scope to match the verifier path
+        let scope_str = serde_json::to_string(&TraceStreamScope::Session).unwrap();
         let event_json = serde_json::to_string(&TestEvent("test".into())).unwrap();
         let hash = Blake3HashPolicy::compute_hash(
             global_seq,
-            scope_str,
+            &scope_str,
             stream_id,
             stream_seq,
             "test.event",
@@ -869,10 +874,11 @@ mod tests {
         let e1 = make_hashed_entry(1, "s1", 1, None);
 
         // Attacker creates a fully consistent tampered entry
-        let scope_str = "Session";
+        // Must use serde_json::to_string for scope to match the verifier path
+        let scope_str = serde_json::to_string(&TraceStreamScope::Session).unwrap();
         let tampered_json = serde_json::to_string(&TestEvent("EVIL".into())).unwrap();
         let tampered_hash = Blake3HashPolicy::compute_hash(
-            2, scope_str, "s1", 2, "test.event",
+            2, &scope_str, "s1", 2, "test.event",
             &tampered_json, Some(&e1.entry_hash)
         );
 
