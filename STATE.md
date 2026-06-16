@@ -81,7 +81,8 @@ Baseline for rc.1: 4,232 total
 | 131A | API Stability Policy | `wave-131a-lock` | docs/API_STABILITY_POLICY.md |
 | 132A | Provider Expansion Decision | `wave-132a-lock` | docs/VL4_PROVIDER_EXPANSION_DECISION.md |
 | 133A | Resource-Blocked Validation Packets | `wave-133a-lock` | docs/VL_RESOURCE_BLOCKED_PACKETS.md |
-| 134A | Post-v1.0 Operations Ledger | (this wave) | docs/POST_V100_OPERATIONS_LEDGER.md |
+| 134A | Post-v1.0 Operations Ledger | `wave-134a-lock` | docs/POST_V100_OPERATIONS_LEDGER.md |
+| 135A | Internal Product Operating Mode | (this wave) | docs/INTERNAL_OPERATIONS.md |
 
 ## Post-v1.0 VL Blocker Plan
 

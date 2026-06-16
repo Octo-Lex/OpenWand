@@ -415,4 +415,5 @@ Some waves collapse commits (e.g., commits 2+3 combined) when scope is smaller.
 | 131A | API Stability Policy | `wave-131a-lock` | 4,468 | docs/API_STABILITY_POLICY.md |
 | 132A | Provider Expansion Decision | `wave-132a-lock` | 4,486 | docs/VL4_PROVIDER_EXPANSION_DECISION.md |
 | 133A | Resource-Blocked Validation Packets | `wave-133a-lock` | 4,509 | docs/VL_RESOURCE_BLOCKED_PACKETS.md |
-| 134A | Post-v1.0 Operations Ledger | (pending) | 4,532 | docs/POST_V100_OPERATIONS_LEDGER.md |
+| 134A | Post-v1.0 Operations Ledger | `wave-134a-lock` | 4,532 | docs/POST_V100_OPERATIONS_LEDGER.md |
+| 135A | Internal Product Operating Mode | (pending) | 4,554 | docs/INTERNAL_OPERATIONS.md |

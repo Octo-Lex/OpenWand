@@ -28,6 +28,15 @@ This is a living document. It is updated at each wave boundary.
 
 **v1.0.1** — `openwand 1.0.1`
 
+### Operating Mode
+
+**Internal Product Operating Mode** (135A, 2026-06-16)
+
+The product is finished for internal use. Active construction is paused.
+See `docs/INTERNAL_OPERATIONS.md` for operating rules, supported workflows,
+evidence capture expectations, bug classification, and patch triggers.
+External review (VL-2) and Linux GUI validation (VL-5) remain deferred.
+
 ### Artifact Identity (v1.0.1)
 
 | Artifact | Size | SHA-256 |
